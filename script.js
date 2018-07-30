@@ -22,6 +22,7 @@ var inCanvas = false;  //Whether or not the mouse is in the canvas
 var mousePos = [0, 0]; //[x, y] location of the mouse in the canvas
 var mousePath = [];    //List of [x, y] locations the mouse was at each sample
 var guessPath = [];    //The particle filter's best guess of the mouse's path
+var particles = [];    //Array of the particles used for the filter
 
 ///////////////////////////////////////////
 /// CLASSES
@@ -149,6 +150,15 @@ function drawParticle(p) {
 function clearCanvas() {
 	//
 	ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+}
+function drawFrame() {
+	clearCanvas();
+	drawPillar();
+	for(var i=0; i<particles.length; ++i) {
+		drawParticle(particles[i]);
+	}
+	drawPath(mousePath, mousePathColor);
+	drawPath(guessPath, guessPathColor);
 }
 
 ///////////////////////////////////////////
