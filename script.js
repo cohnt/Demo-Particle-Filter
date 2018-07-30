@@ -21,8 +21,10 @@ var numParticles = 100;
 var canvas; //The html object for the canvas
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
-var mousePos = [0, 0]; //[x, y] location of the mouse in the canvas
-var mouseTime = 0; //The time when mousePos was taken
+var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
+var rawMouseTime = 0; //The time when mousePos was taken
+var mousePos = [0, 0];
+var mouseTime = 0;
 var oldMousePos = [0, 0];
 var oldMouseTime = 0;
 var mouseVel = [0, 0];
@@ -69,14 +71,27 @@ function mouseLeaveCanvas() {
 	inCanvas = false;
 }
 function mouseMoveCanvas(event) {
-	oldMousePos = mousePos.slice();
-	oldMouseTime = mouseTime;
-
 	var rect = canvas.getBoundingClientRect();
 	var x = event.clientX - rect.left;
 	var y = event.clientY - rect.top;
-	mousePos = [x, y];
-	mouseTime = window.performance.now();
+	rawMousePos = [x, y];
+	rawMouseTime = window.performance.now();
+}
+function mouseClickCanvas() {
+	if(running) {
+		return;
+	}
+	reset();
+	running = true;
+	generateParticles();
+	tick();
+}
+function updateMouseData() {
+	oldMousePos = mousePos.slice();
+	oldMouseTime = mouseTime;
+
+	mousePos = rawMousePos.slice();
+	mouseTime = rawMouseTime;
 
 	mouseVel = mousePos.slice();
 	mouseVel[0] -= oldMousePos[0]; mouseVel[0] /= (mouseTime - oldMouseTime);
@@ -90,17 +105,8 @@ function mouseMoveCanvas(event) {
 	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
 	// console.log("Mouse velocity: [" + mouseVel[0] + "," + mouseVel[1] + "]");
 	// console.log("Mouse speed: " + Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1])));
-	console.log("Mouse heading: " + String(180*mouseHeading/Math.PI));
-	console.log("Pillar heading: " + String(180*pillarHeading/Math.PI));
-}
-function mouseClickCanvas() {
-	if(running) {
-		return;
-	}
-	reset();
-	running = true;
-	generateParticles();
-	tick();
+	// console.log("Mouse heading: " + String(180*mouseHeading/Math.PI));
+	// console.log("Pillar heading: " + String(180*pillarHeading/Math.PI));
 }
 
 function drawPillar() {
@@ -210,6 +216,7 @@ function tick() {
 	// console.log("Mouse heading: " + String(180*mouseHeading/Math.PI));
 	console.log("Mouse speed: " + String(Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1]))) + "\t\tMouse mouseHeading: " + String(180*mouseHeading/Math.PI));
 
+	updateMouseData();
 	mousePath.push(mousePos.slice());
 
 	calculateWeights();
@@ -252,7 +259,8 @@ function calcPillarHeading(pos, heading) {
 	pillarVec[1] -= mousePos[1];
 	
 	var angle = Math.atan2(pillarVec[1], pillarVec[0]);
-	console.log("Pillar angle: " + String(180*angle/Math.PI));
+	// console.log("Pillar angle: " + String(180*angle/Math.PI));
+
 	var result = heading - angle;
 	if(result > Math.PI) {
 		result -= 2*Math.PI;
