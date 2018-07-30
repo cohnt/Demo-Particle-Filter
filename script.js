@@ -13,7 +13,8 @@ var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
 var tickRate = 8; //Given in ticks/second
 var numParticles = 400;
-var particleMoveNoise = 25;
+var particleSpeedNoise = 25; //Up to this many pixels forward or back
+var particleHeadingNoise = Math.PI / 12; //Up to 30 degrees to either side
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -295,11 +296,13 @@ function resample() {
 	particles = newParticles.slice();
 }
 function translateParticles() {
+	var heading = mouseHeading;
+	var speed = Math.sqrt(Math.pow(mouseVel[0], 2) + Math.pow(mouseVel[1], 2));
 	for(var i=0; i<particles.length; ++i) {
-		var randDist = Math.random() * particleMoveNoise;
-		var randAngle = Math.random() * 2 * Math.PI;
-		particles[i].pos[0] += (mouseVel[0] * (mouseTime - oldMouseTime)) + (randDist * Math.cos(randAngle));
-		particles[i].pos[1] += (mouseVel[1] * (mouseTime - oldMouseTime)) + (randDist * Math.sin(randAngle));
+		var headingNoise = (Math.random() * particleHeadingNoise * 2) - particleHeadingNoise;
+		var speedNoise = (Math.random() * particleSpeedNoise * 2) - particleSpeedNoise;
+		particles[i].pos[0] += (speed + speedNoise) * Math.cos(heading + headingNoise);
+		particles[i].pos[1] += (speed + speedNoise) * Math.sin(heading + headingNoise);
 	}
 }
 
