@@ -11,7 +11,7 @@ var mousePathColor = "black";
 var guessPathColor = "red";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
-var tickRate = 3; //Given in ticks/second
+var tickRate = 25; //Given in ticks/second
 var numParticles = 400;
 var particleSpeedNoise = 0.5; //Up to double or down to half speed
 var particleHeadingNoise = Math.PI / 24; //Up to 15 degrees to either side
@@ -316,6 +316,7 @@ function translateParticles() {
 		var speedNoise = (Math.random() * particleSpeedNoise * 2) - particleSpeedNoise;
 		particles[i].pos[0] += (speed + speedNoise) * (mouseTime - oldMouseTime) * Math.cos(heading + headingNoise);
 		particles[i].pos[1] += (speed + speedNoise) * (mouseTime - oldMouseTime) * Math.sin(heading + headingNoise);
+		particles[i].heading = heading + headingNoise;
 	}
 }
 
