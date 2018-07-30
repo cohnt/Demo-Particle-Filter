@@ -10,6 +10,7 @@ var pillarFillStyle = "#999999";
 var mousePathColor = "black";
 var guessPathColor = "red";
 var pathMarkerSize = 4; //It's a square
+var particleDispRadius = 3;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -26,7 +27,10 @@ var guessPath = [];    //The particle filter's best guess of the mouse's path
 /// CLASSES
 ///////////////////////////////////////////
 
-
+function Particle(pos) {
+	this.pos = pos;
+	this.weight = null;
+}
 
 ///////////////////////////////////////////
 /// FUNCTIONS
@@ -131,6 +135,16 @@ function weightToColor(weight) {
 	}
 
 	return rgbToHex(r, g, b);
+}
+function drawParticle(p) {
+	color = weightToColor(p.weight);
+	ctx.strokeStyle = color;
+	ctx.fillStyle = color;
+	ctx.beginPath();
+	ctx.moveTo(p.pos[0], p.pos[1]);
+	ctx.arc(p.pos[0], p.pos[1], particleDispRadius, 0, 2*Math.PI, true);
+	ctx.closePath();
+	ctx.fill();
 }
 function clearCanvas() {
 	//
