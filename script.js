@@ -271,7 +271,20 @@ function calculateWeights() {
 	}
 }
 function resample() {
-	//
+	var weightData = particles.map(a => a.weight);
+	var newParticles = [];
+	var cs = cumsum(weightData);
+	var step = 1/(numParticles+1);
+	var chkVal = step;
+	var chkIndex = 0;
+	for(var i=0; i<numParticles; ++i) {
+		while(cs[chkIndex] < chkVal) {
+			++chkIndex;
+		}
+		chkVal += step;
+		newParticles[i] = new Particle(particles[chkIndex].pos, particles[chkIndex].heading);
+	}
+	particles = newParticles.slice();
 }
 
 function dist2(a, b) {
@@ -326,6 +339,12 @@ function normalizeWeight(arr) {
 	}
 	for(var i=0; i<arr.length; ++i) {
 		arr[i] /= total;
+	}
+	return arr;
+}
+function cumsum(arr) {
+	for(var i=1; i<arr.length; ++i) {
+		arr[i] += arr[i-1];
 	}
 	return arr;
 }
