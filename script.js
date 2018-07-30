@@ -10,9 +10,10 @@ var pillarFillStyle = "#999999";
 var mousePathColor = "black";
 var guessPathColor = "red";
 var pathMarkerSize = 4; //It's a square
-var particleDispRadius = 3;
-var tickRate = 3; //Given in ticks/second
-var numParticles = 100;
+var particleDispRadius = 2;
+var tickRate = 8; //Given in ticks/second
+var numParticles = 400;
+var particleMoveNoise = 25;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -87,7 +88,8 @@ function mouseClickCanvas() {
 	reset();
 	running = true;
 	generateParticles();
-	tick();
+	updateMouseData();
+	window.setTimeout(tick, Math.floor(1000 / tickRate));
 }
 function updateMouseData() {
 	oldMousePos = mousePos.slice();
@@ -184,7 +186,7 @@ function weightToColor(weight) {
 	return rgbToHex(r, g, b);
 }
 function drawParticle(p) {
-	color = weightToColor(p.weight);
+	color = weightToColor(25*p.weight);
 	ctx.strokeStyle = color;
 	ctx.fillStyle = color;
 	ctx.beginPath();
@@ -225,6 +227,7 @@ function tick() {
 	measureParticles();
 	calculateWeights();
 	resample();
+	translateParticles();
 
 	drawFrame();
 
@@ -285,6 +288,14 @@ function resample() {
 		newParticles[i] = new Particle(particles[chkIndex].pos, particles[chkIndex].heading);
 	}
 	particles = newParticles.slice();
+}
+function translateParticles() {
+	for(var i=0; i<particles.length; ++i) {
+		var randDist = Math.random() * particleMoveNoise;
+		var randAngle = Math.random() * 2 * Math.PI;
+		particles[i].pos[0] += (mouseVel[0] * (mouseTime - oldMouseTime)) + (randDist * Math.cos(randAngle));
+		particles[i].pos[1] += (mouseVel[1] * (mouseTime - oldMouseTime)) + (randDist * Math.sin(randAngle));
+	}
 }
 
 function dist2(a, b) {
