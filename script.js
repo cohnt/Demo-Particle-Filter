@@ -11,18 +11,19 @@ var mousePathColor = "black";
 var guessPathColor = "red";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 3;
+var tickRate = 3; //Given in ticks/second
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
 ///////////////////////////////////////////
 
-var canvas;            //The html object for the canvas
-var ctx;               //2D drawing context for the canvas
-var inCanvas = false;  //Whether or not the mouse is in the canvas
+var canvas; //The html object for the canvas
+var ctx; //2D drawing context for the canvas
+var inCanvas = false; //Whether or not the mouse is in the canvas
 var mousePos = [0, 0]; //[x, y] location of the mouse in the canvas
-var mousePath = [];    //List of [x, y] locations the mouse was at each sample
-var guessPath = [];    //The particle filter's best guess of the mouse's path
-var particles = [];    //Array of the particles used for the filter
+var mousePath = []; //List of [x, y] locations the mouse was at each sample
+var guessPath = []; //The particle filter's best guess of the mouse's path
+var particles = []; //Array of the particles used for the filter
 
 ///////////////////////////////////////////
 /// CLASSES
@@ -44,6 +45,7 @@ function setup() {
 	canvas.addEventListener("mouseenter", mouseEnterCanvas);
 	canvas.addEventListener("mouseleave", mouseLeaveCanvas);
 	canvas.addEventListener("mousemove", function(event) { mouseMoveCanvas(event); });
+	canvas.addEventListener("click", tick);
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
@@ -159,6 +161,18 @@ function drawFrame() {
 	}
 	drawPath(mousePath, mousePathColor);
 	drawPath(guessPath, guessPathColor);
+}
+
+function tick() {
+	if(!inCanvas) {
+		return;
+	}
+
+	mousePath.push(mousePos.slice());
+
+	drawFrame();
+
+	window.setTimeout(tick, Math.floor(1000 / tickRate));
 }
 
 ///////////////////////////////////////////
