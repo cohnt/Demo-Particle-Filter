@@ -11,12 +11,12 @@ var mousePathColor = "black";
 var guessPathColor = "grey";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
-var tickRate = 10; //Given in ticks/second
-var numParticles = 400;
+var tickRate = 8; //Given in ticks/second
+var numParticles = 500;
 var particleSpeedNoise = 0.5; //Up to double or down to half speed
 var particleHeadingNoise = Math.PI / 24; //Up to 15 degrees to either side
 var numSamplesToDisplay = 25; //How many markers on the path should be kept.
-var weightColorMultiplier = 175;
+var weightColorMultiplier = 200;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
