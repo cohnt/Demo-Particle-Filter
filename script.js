@@ -24,6 +24,7 @@ var mousePos = [0, 0]; //[x, y] location of the mouse in the canvas
 var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
 var particles = []; //Array of the particles used for the filter
+var running = false; //Whether or not the particle filter is running.
 
 ///////////////////////////////////////////
 /// CLASSES
@@ -45,7 +46,7 @@ function setup() {
 	canvas.addEventListener("mouseenter", mouseEnterCanvas);
 	canvas.addEventListener("mouseleave", mouseLeaveCanvas);
 	canvas.addEventListener("mousemove", function(event) { mouseMoveCanvas(event); });
-	canvas.addEventListener("click", tick);
+	canvas.addEventListener("click", mouseClickCanvas);
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
@@ -58,7 +59,6 @@ function mouseEnterCanvas() {
 function mouseLeaveCanvas() {
 	// console.log("Mouse leave canvas");
 	inCanvas = false;
-	//TODO: Reset the demo if it's running
 }
 function mouseMoveCanvas(event) {
 	var rect = canvas.getBoundingClientRect();
@@ -66,6 +66,14 @@ function mouseMoveCanvas(event) {
 	var y = event.clientY - rect.top;
 	mousePos = [x, y];
 	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
+}
+function mouseClickCanvas() {
+	if(running) {
+		return;
+	}
+	reset();
+	running = true;
+	tick();
 }
 
 function drawPillar() {
@@ -165,6 +173,7 @@ function drawFrame() {
 
 function tick() {
 	if(!inCanvas) {
+		running = false;
 		return;
 	}
 
@@ -173,6 +182,11 @@ function tick() {
 	drawFrame();
 
 	window.setTimeout(tick, Math.floor(1000 / tickRate));
+}
+function reset() {
+	mousePath = [];
+	guessPath = [];
+	particles = [];
 }
 
 ///////////////////////////////////////////
