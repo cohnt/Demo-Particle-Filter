@@ -92,6 +92,46 @@ function drawPath(path, color) {
 		ctx.fillRect(path[i][0] - (foo/2), path[i][1] - (foo/2), foo, foo);
 	}
 }
+function weightToColor(weight) {
+	//Create HSL
+	var h = ((1-weight)*240)/360;
+	var s = 1;
+	var l = 0.5;
+
+	//Convert to RGB (from https://gist.github.com/mjackson/5311256)
+	var r, g, b;
+
+	function hue2rgb(p, q, t) {
+		if (t < 0) t += 1;
+		if (t > 1) t -= 1;
+		if (t < 1/6) return p + (q - p) * 6 * t;
+		if (t < 1/2) return q;
+		if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+		return p;
+	}
+
+	var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+	var p = 2 * l - q;
+
+	r = hue2rgb(p, q, h + 1/3);
+	g = hue2rgb(p, q, h);
+	b = hue2rgb(p, q, h - 1/3);
+
+	r = Math.floor(r * 255);
+	g = Math.floor(g * 255);
+	b = Math.floor(b * 255);
+
+	//Convert to RGB color code
+	function componentToHex(c) {
+		var hex = c.toString(16);
+		return hex.length == 1 ? "0" + hex : hex;
+	}
+	function rgbToHex(r, g, b) {
+		return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+	}
+
+	return rgbToHex(r, g, b);
+}
 function clearCanvas() {
 	//
 	ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
