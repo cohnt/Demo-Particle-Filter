@@ -224,7 +224,6 @@ function tick() {
 
 	measureParticles();
 	calculateWeights();
-	normalizeWeights();
 	resample();
 
 	drawFrame();
@@ -251,10 +250,25 @@ function measureParticles() {
 	}
 }
 function calculateWeights() {
-	//
-}
-function normalizeWeights() {
-	//
+	//Calculate individual
+	var dist2Data = particles.map(a => a.predictedDist2);
+	var dist2Weights = normalizeWeight(calculateWeight(dist2Data, pillarDist2));
+
+	var headingData = particles.map(a => a.predictedHeading);
+	var headingWeights = normalizeWeight(calculateWeight(headingData, pillarHeading));
+
+	//Combine
+	var combinedWeights = dist2Weights.slice();
+	for(var i=0; i<combinedWeights.length; ++i) {
+		combinedWeights[i] *= headingWeights[i];
+	}
+
+	//Normalize again
+	combinedWeights = normalizeWeight(combinedWeights);
+
+	for(var i=0; i<particles.length; ++i) {
+		particles[i].weight = combinedWeights[i];
+	}
 }
 function resample() {
 	//
@@ -278,6 +292,42 @@ function calcPillarHeading(pos, heading) {
 		result -= 2*Math.PI;
 	}
 	return result;
+}
+function mean(arr) {
+	var total = 0;
+	for(var i=0; i<arr.length; ++i) {
+		total += arr[i];
+	}
+	return total / arr.length;
+}
+function variance(arr) {
+	var v = 0;
+	var m = mean(arr);
+	for(var i=0; i<arr.length; ++i) {
+		v += arr[i]*arr[i];
+	}
+	v /= arr.length;
+	v -= m*m;
+	return v;
+}
+function calculateWeight(raw, actual) {
+	var v = variance(raw);
+	var m = 1/(Math.sqrt(2*Math.PI*v));
+	var weights = [];
+	for(var i=0; i<raw.length; ++i) {
+		weights[i] = Math.pow(Math.E, -(Math.pow((raw[i]-actual), 2) / (2*v))) * m;
+	}
+	return weights;
+}
+function normalizeWeight(arr) {
+	var total = 0;
+	for(var i=0; i<arr.length; ++i) {
+		total += arr[i];
+	}
+	for(var i=0; i<arr.length; ++i) {
+		arr[i] /= total;
+	}
+	return arr;
 }
 
 ///////////////////////////////////////////
