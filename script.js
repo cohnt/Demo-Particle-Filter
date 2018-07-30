@@ -8,13 +8,15 @@ var pillarRadius = 10;
 var pillarStrokeStyle = "black";
 var pillarFillStyle = "#999999";
 var mousePathColor = "black";
-var guessPathColor = "red";
+var guessPathColor = "grey";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
-var tickRate = 25; //Given in ticks/second
+var tickRate = 10; //Given in ticks/second
 var numParticles = 400;
 var particleSpeedNoise = 0.5; //Up to double or down to half speed
 var particleHeadingNoise = Math.PI / 24; //Up to 15 degrees to either side
+var numSamplesToDisplay = 25; //How many markers on the path should be kept.
+var weightColorMultiplier = 175;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -192,7 +194,7 @@ function weightToColor(weight) {
 	return rgbToHex(r, g, b);
 }
 function drawParticle(p) {
-	color = weightToColor(50*p.weight);
+	color = weightToColor(p.weight * weightColorMultiplier);
 	ctx.strokeStyle = color;
 	ctx.fillStyle = color;
 	ctx.beginPath();
@@ -236,6 +238,11 @@ function tick() {
 	translateParticles();
 	measureParticles();
 	calculateWeights();
+
+	if(mousePath.length > numSamplesToDisplay) {
+		mousePath.shift();
+		guessPath.shift();
+	}
 
 	drawFrame();
 
