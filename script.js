@@ -40,9 +40,12 @@ var running = false; //Whether or not the particle filter is running.
 /// CLASSES
 ///////////////////////////////////////////
 
-function Particle(pos) {
-	this.pos = pos;
+function Particle(pos, heading) {
+	this.pos = pos.slice();
+	this.heading = heading;
 	this.weight = 0;
+	this.predictedDist2 = 0;
+	this.predictedHeading = 0;
 }
 
 ///////////////////////////////////////////
@@ -219,6 +222,7 @@ function tick() {
 	updateMouseData();
 	mousePath.push(mousePos.slice());
 
+	measureParticles();
 	calculateWeights();
 	normalizeWeights();
 	resample();
@@ -235,7 +239,15 @@ function reset() {
 
 function generateParticles() {
 	for(var i=0; i<numParticles; ++i) {
-		particles[i] = new Particle([Math.random() * canvasSize.width, Math.random() * canvasSize.height]);
+		var pos = [Math.random() * canvasSize.width, Math.random() * canvasSize.height];
+		var heading = Math.random() * 2 * Math.PI;
+		particles[i] = new Particle(pos, heading);
+	}
+}
+function measureParticles() {
+	for(var i=0; i<particles.length; ++i) {
+		particles[i].predictedDist2 = dist2(particles[i].pos, pillarLocation);
+		particles[i].predictedHeading = calcPillarHeading(particles[i].pos, particles[i].heading);
 	}
 }
 function calculateWeights() {
