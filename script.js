@@ -102,6 +102,11 @@ function updateMouseData() {
 	mouseVel[0] -= oldMousePos[0]; mouseVel[0] /= (mouseTime - oldMouseTime);
 	mouseVel[1] -= oldMousePos[1]; mouseVel[1] /= (mouseTime - oldMouseTime);
 
+	if(mouseTime == oldMouseTime) {
+		mouseVel[0] = 0;
+		mouseVel[1] = 0;
+	}
+
 	mouseHeading = Math.atan2(mouseVel[1], mouseVel[0]);
 
 	pillarDist2 = dist2(pillarLocation, mousePos);
