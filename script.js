@@ -192,7 +192,7 @@ function weightToColor(weight) {
 	return rgbToHex(r, g, b);
 }
 function drawParticle(p) {
-	color = weightToColor(25*p.weight);
+	color = weightToColor(50*p.weight);
 	ctx.strokeStyle = color;
 	ctx.fillStyle = color;
 	ctx.beginPath();
@@ -234,6 +234,8 @@ function tick() {
 	calculateWeights();
 	resample();
 	translateParticles();
+	measureParticles();
+	calculateWeights();
 
 	drawFrame();
 
@@ -268,9 +270,9 @@ function calculateWeights() {
 
 	//Combine
 	var combinedWeights = dist2Weights.slice();
-	for(var i=0; i<combinedWeights.length; ++i) {
-		combinedWeights[i] *= headingWeights[i];
-	}
+	// for(var i=0; i<combinedWeights.length; ++i) {
+	// 	combinedWeights[i] *= headingWeights[i];
+	// }
 
 	//Normalize again
 	combinedWeights = normalizeWeight(combinedWeights);
