@@ -11,7 +11,7 @@ var mousePathColor = "black";
 var guessPathColor = "red";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
-var tickRate = 8; //Given in ticks/second
+var tickRate = 1; //Given in ticks/second
 var numParticles = 400;
 var particleSpeedNoise = 25; //Up to this many pixels forward or back
 var particleHeadingNoise = Math.PI / 12; //Up to 30 degrees to either side
@@ -261,10 +261,10 @@ function measureParticles() {
 function calculateWeights() {
 	//Calculate individual
 	var dist2Data = particles.map(a => a.predictedDist2);
-	var dist2Weights = normalizeWeight(calculateWeight(dist2Data, pillarDist2));
+	var dist2Weights = normalizeWeight(calculateWeight(dist2Data, pillarDist2, false));
 
 	var headingData = particles.map(a => a.predictedHeading);
-	var headingWeights = normalizeWeight(calculateWeight(headingData, pillarHeading));
+	var headingWeights = normalizeWeight(calculateWeight(headingData, pillarHeading, true));
 
 	//Combine
 	var combinedWeights = dist2Weights.slice();
@@ -342,12 +342,26 @@ function variance(arr) {
 	v -= m*m;
 	return v;
 }
-function calculateWeight(raw, actual) {
+function angleDist(a, b) {
+	var diff = a - b;
+	function specialMod(lhs, rhs) {
+		return lhs - (Math.floor(lhs/rhs) * rhs);
+	}
+	return (specialMod(diff + Math.PI, Math.PI*2)) - Math.PI;
+}
+function calculateWeight(raw, actual, isAngle) {
 	var v = variance(raw);
 	var m = 1/(Math.sqrt(2*Math.PI*v));
 	var weights = [];
-	for(var i=0; i<raw.length; ++i) {
-		weights[i] = Math.pow(Math.E, -(Math.pow((raw[i]-actual), 2) / (2*v))) * m;
+	if(isAngle) {
+		for(var i=0; i<raw.length; ++i) {
+			weights[i] = Math.pow(Math.E, -(Math.pow((angleDist(raw[i], actual)), 2) / (2*v))) * m;
+		}
+	}
+	else {
+		for(var i=0; i<raw.length; ++i) {
+			weights[i] = Math.pow(Math.E, -(Math.pow((raw[i]-actual), 2) / (2*v))) * m;
+		}
 	}
 	return weights;
 }
