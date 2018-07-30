@@ -27,7 +27,7 @@ var oldMousePos = [0, 0];
 var oldMouseTime = 0;
 var mouseVel = [0, 0];
 var mouseHeading = 0; //Given in radians, -PI to +PI
-var pillarDist = 0; //Distance from the mouse to the pillar
+var pillarDist2 = 0; //Distance-squared from the mouse to the pillar
 var pillarHeading = 0; //Angle between the mouse heading and the mouse->pillar line, given in radians, -PI to +PI
 var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
@@ -84,9 +84,14 @@ function mouseMoveCanvas(event) {
 
 	mouseHeading = Math.atan2(mouseVel[1], mouseVel[0]);
 
+	pillarDist2 = dist2(pillarLocation, mousePos);
+	pillarHeading = calcPillarHeading(mousePos, mouseHeading);
+
 	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
 	// console.log("Mouse velocity: [" + mouseVel[0] + "," + mouseVel[1] + "]");
 	// console.log("Mouse speed: " + Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1])));
+	console.log("Mouse heading: " + String(180*mouseHeading/Math.PI));
+	console.log("Pillar heading: " + String(180*pillarHeading/Math.PI));
 }
 function mouseClickCanvas() {
 	if(running) {
@@ -202,7 +207,7 @@ function tick() {
 	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
 	// console.log("Mouse velocity: [" + mouseVel[0] + "," + mouseVel[1] + "]");
 	// console.log("Mouse speed: " + Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1])));
-	// console.log("Mouse mouseHeading: " + String(180*mouseHeading/Math.PI));
+	// console.log("Mouse heading: " + String(180*mouseHeading/Math.PI));
 	console.log("Mouse speed: " + String(Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1]))) + "\t\tMouse mouseHeading: " + String(180*mouseHeading/Math.PI));
 
 	mousePath.push(mousePos.slice());
@@ -234,6 +239,25 @@ function normalizeWeights() {
 }
 function resample() {
 	//
+}
+
+function dist2(a, b) {
+	var dx = b[0]-a[0];
+	var dy = b[1]-a[1];
+	return (dx*dx) + (dy*dy);
+}
+function calcPillarHeading(pos, heading) {
+	var pillarVec = pillarLocation.slice();
+	pillarVec[0] -= mousePos[0];
+	pillarVec[1] -= mousePos[1];
+	
+	var angle = Math.atan2(pillarVec[1], pillarVec[0]);
+	console.log("Pillar angle: " + String(180*angle/Math.PI));
+	var result = heading - angle;
+	if(result > Math.PI) {
+		result -= 2*Math.PI;
+	}
+	return result;
 }
 
 ///////////////////////////////////////////
