@@ -12,6 +12,7 @@ var guessPathColor = "red";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 3;
 var tickRate = 3; //Given in ticks/second
+var numParticles = 100;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -25,7 +26,9 @@ var mouseTime = 0; //The time when mousePos was taken
 var oldMousePos = [0, 0];
 var oldMouseTime = 0;
 var mouseVel = [0, 0];
-var heading = 0; //Given in radians, -Pi to +Pi
+var mouseHeading = 0; //Given in radians, -PI to +PI
+var pillarDist = 0; //Distance from the mouse to the pillar
+var pillarHeading = 0; //Angle between the mouse heading and the mouse->pillar line, given in radians, -PI to +PI
 var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
 var particles = []; //Array of the particles used for the filter
@@ -35,10 +38,9 @@ var running = false; //Whether or not the particle filter is running.
 /// CLASSES
 ///////////////////////////////////////////
 
-function Particle(pos, vel) {
+function Particle(pos) {
 	this.pos = pos;
-	this.vel = vel;
-	this.weight = null;
+	this.weight = 0;
 }
 
 ///////////////////////////////////////////
@@ -80,7 +82,7 @@ function mouseMoveCanvas(event) {
 	mouseVel[0] -= oldMousePos[0]; mouseVel[0] /= (mouseTime - oldMouseTime);
 	mouseVel[1] -= oldMousePos[1]; mouseVel[1] /= (mouseTime - oldMouseTime);
 
-	heading = Math.atan2(mouseVel[1], mouseVel[0]);
+	mouseHeading = Math.atan2(mouseVel[1], mouseVel[0]);
 
 	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
 	// console.log("Mouse velocity: [" + mouseVel[0] + "," + mouseVel[1] + "]");
@@ -92,6 +94,7 @@ function mouseClickCanvas() {
 	}
 	reset();
 	running = true;
+	generateParticles();
 	tick();
 }
 
@@ -199,10 +202,14 @@ function tick() {
 	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
 	// console.log("Mouse velocity: [" + mouseVel[0] + "," + mouseVel[1] + "]");
 	// console.log("Mouse speed: " + Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1])));
-	// console.log("Mouse heading: " + String(180*heading/Math.PI));
-	console.log("Mouse speed: " + String(Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1]))) + "\t\tMouse heading: " + String(180*heading/Math.PI));
+	// console.log("Mouse mouseHeading: " + String(180*mouseHeading/Math.PI));
+	console.log("Mouse speed: " + String(Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1]))) + "\t\tMouse mouseHeading: " + String(180*mouseHeading/Math.PI));
 
 	mousePath.push(mousePos.slice());
+
+	calculateWeights();
+	normalizeWeights();
+	resample();
 
 	drawFrame();
 
@@ -212,6 +219,21 @@ function reset() {
 	mousePath = [];
 	guessPath = [];
 	particles = [];
+}
+
+function generateParticles() {
+	for(var i=0; i<numParticles; ++i) {
+		particles[i] = new Particle([Math.random() * canvasSize.width, Math.random() * canvasSize.height]);
+	}
+}
+function calculateWeights() {
+	//
+}
+function normalizeWeights() {
+	//
+}
+function resample() {
+	//
 }
 
 ///////////////////////////////////////////
