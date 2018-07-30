@@ -21,6 +21,11 @@ var canvas; //The html object for the canvas
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var mousePos = [0, 0]; //[x, y] location of the mouse in the canvas
+var mouseTime = 0; //The time when mousePos was taken
+var oldMousePos = [0, 0];
+var oldMouseTime = 0;
+var mouseVel = [0, 0];
+var heading = 0; //Given in radians, -Pi to +Pi
 var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
 var particles = []; //Array of the particles used for the filter
@@ -30,8 +35,9 @@ var running = false; //Whether or not the particle filter is running.
 /// CLASSES
 ///////////////////////////////////////////
 
-function Particle(pos) {
+function Particle(pos, vel) {
 	this.pos = pos;
+	this.vel = vel;
 	this.weight = null;
 }
 
@@ -61,11 +67,24 @@ function mouseLeaveCanvas() {
 	inCanvas = false;
 }
 function mouseMoveCanvas(event) {
+	oldMousePos = mousePos.slice();
+	oldMouseTime = mouseTime;
+
 	var rect = canvas.getBoundingClientRect();
 	var x = event.clientX - rect.left;
 	var y = event.clientY - rect.top;
 	mousePos = [x, y];
+	mouseTime = window.performance.now();
+
+	mouseVel = mousePos.slice();
+	mouseVel[0] -= oldMousePos[0]; mouseVel[0] /= (mouseTime - oldMouseTime);
+	mouseVel[1] -= oldMousePos[1]; mouseVel[1] /= (mouseTime - oldMouseTime);
+
+	heading = Math.atan2(mouseVel[1], mouseVel[0]);
+
 	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
+	// console.log("Mouse velocity: [" + mouseVel[0] + "," + mouseVel[1] + "]");
+	// console.log("Mouse speed: " + Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1])));
 }
 function mouseClickCanvas() {
 	if(running) {
@@ -176,6 +195,12 @@ function tick() {
 		running = false;
 		return;
 	}
+
+	// console.log("Mouse coordinates: [" + mousePos[0] + "," + mousePos[1] + "]");
+	// console.log("Mouse velocity: [" + mouseVel[0] + "," + mouseVel[1] + "]");
+	// console.log("Mouse speed: " + Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1])));
+	// console.log("Mouse heading: " + String(180*heading/Math.PI));
+	console.log("Mouse speed: " + String(Math.sqrt((mouseVel[0]*mouseVel[0]) + (mouseVel[1]*mouseVel[1]))) + "\t\tMouse heading: " + String(180*heading/Math.PI));
 
 	mousePath.push(mousePos.slice());
 
