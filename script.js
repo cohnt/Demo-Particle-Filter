@@ -92,6 +92,10 @@ function drawPath(path, color) {
 		ctx.fillRect(path[i][0] - (foo/2), path[i][1] - (foo/2), foo, foo);
 	}
 }
+function clearCanvas() {
+	//
+	ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
+}
 
 ///////////////////////////////////////////
 /// EXECUTED CODE
