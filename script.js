@@ -9,6 +9,7 @@ var pillarStrokeStyle = "black";
 var pillarFillStyle = "#999999";
 var mousePathColor = "black";
 var guessPathColor = "grey";
+var connectPathColor = "black";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
 var tickRate = 8; //Given in ticks/second
@@ -155,6 +156,21 @@ function drawPath(path, color) {
 		ctx.fillRect(path[i][0] - (foo/2), path[i][1] - (foo/2), foo, foo);
 	}
 }
+function connectPaths(path1, path2, color) {
+	if(path1.length != path2.length) {
+		throw("Path lengths do not match!");
+	}
+
+	ctx.strokeStyle = color;
+	ctx.setLineDash([1, 2]); //1 pixel on, 2 pixels off
+	for(var i=0; i<path1.length; ++i) {
+		ctx.beginPath();
+		ctx.moveTo(path1[i][0], path1[i][1]);
+		ctx.lineTo(path2[i][0], path2[i][1]);
+		ctx.stroke();
+	}
+	ctx.setLineDash([]); //Reset dashed lines.
+}
 function weightToColor(weight) {
 	//Create HSL
 	var h = ((1-weight)*240)/360;
@@ -217,6 +233,7 @@ function drawFrame() {
 	}
 	drawPath(mousePath, mousePathColor);
 	drawPath(guessPath, guessPathColor);
+	connectPaths(mousePath, guessPath, connectPathColor);
 }
 
 function tick() {
