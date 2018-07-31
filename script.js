@@ -55,9 +55,10 @@ function Particle(pos, heading) {
 	this.predictedDist2 = 0;
 	this.predictedHeading = 0;
 }
-function Frame(particles, mousePos) {
-	this.particles = particles.slice();
-	this.mousePos = mousePos.slice();
+function Frame(particles_in, mousePos_in, mouseHeading_in) {
+	this.particles = particles_in.slice();
+	this.mousePos = mousePos_in.slice();
+	this.mouseHeading = mouseHeading_in;
 }
 
 ///////////////////////////////////////////
@@ -267,6 +268,8 @@ function tick() {
 	measureParticles();
 	calculateWeights();
 
+	saveFrame();
+
 	if(mousePath.length > numSamplesToDisplay) {
 		mousePath.shift();
 		guessPath.shift();
@@ -353,6 +356,11 @@ function translateParticles() {
 		particles[i].pos[1] += (speed + speedNoise) * (mouseTime - oldMouseTime) * Math.sin(heading + headingNoise);
 		particles[i].heading = heading + headingNoise;
 	}
+}
+
+function saveFrame() {
+	var frame = new Frame(particles, mousePos, mouseHeading);
+	frames.push(frame);
 }
 
 function dist2(a, b) {
