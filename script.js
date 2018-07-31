@@ -200,6 +200,10 @@ function connectPaths(path1, path2, color) {
 	ctx.setLineDash([]); //Reset dashed lines.
 }
 function weightToColor(weight) {
+	if(weight > 1) {
+		weight = 1;
+	}
+
 	//Create HSL
 	var h = ((1-weight)*240)/360;
 	var s = 1;
