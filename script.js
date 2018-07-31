@@ -74,7 +74,7 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 			if(running) {
 				return;
 			}
-			drawFrame(frames[this.id.slice(5)]);
+			drawFrame(frames[this.id.slice(5)], true);
 		});
 		frameListCont.prepend(div);
 	}
