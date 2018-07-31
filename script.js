@@ -240,11 +240,11 @@ function clearCanvas() {
 	//
 	ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
 }
-function drawFrame() {
+function drawFrame(frame) {
 	clearCanvas();
 	drawPillar();
-	for(var i=0; i<particles.length; ++i) {
-		drawParticle(particles[i]);
+	for(var i=0; i<frame.particles.length; ++i) {
+		drawParticle(frame.particles[i]);
 	}
 	drawPath(mousePath, mousePathColor);
 	drawPath(guessPath, guessPathColor);
@@ -279,9 +279,10 @@ function tick() {
 	if(mousePath.length > numSamplesToDisplay) {
 		mousePath.shift();
 		guessPath.shift();
+		frames.shift();
 	}
 
-	drawFrame();
+	drawFrame(frames[frames.length-1]);
 
 	window.setTimeout(tick, Math.floor(1000 / tickRate));
 }
