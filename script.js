@@ -28,6 +28,7 @@ var weightColorMultiplier = 200;
 var canvas; //The html object for the canvas
 var frameListCont; //The html object for the div where frames and frame information is listed
 var frameListTableHeader; //The html object for the header row of the frame list table
+var currentFrameCont = {}; //Contains the html objects for the current frame display
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
@@ -96,6 +97,13 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 
 		frameListTableHeader.parentNode.insertBefore(row, frameListTableHeader.nextSibling);
 	}
+
+	this.showCurrent = function() {
+		currentFrameCont.number.innerHTML = this.id;
+		currentFrameCont.actualPos.innerHTML = " [ " + this.mousePos[0].toFixed(2) + ", " + this.mousePos[1].toFixed(2) + " ] ";
+		currentFrameCont.guessPos.innerHTML = " [ " + this.guessPos[0].toFixed(2) + ", " + this.guessPos[1].toFixed(2) + " ] ";
+		currentFrameCont.error.innerHTML = Math.sqrt(dist2(this.mousePos, this.guessPos)).toFixed(2);
+	}
 }
 
 ///////////////////////////////////////////
@@ -113,6 +121,11 @@ function setup() {
 
 	frameListCont = document.getElementById("frameListCont");
 	frameListTableHeader = document.getElementById("frameListTableHeader");
+
+	currentFrameCont.number = document.getElementById("currentFrameNumber");
+	currentFrameCont.actualPos = document.getElementById("currentFrameActual");
+	currentFrameCont.guessPos = document.getElementById("currentFrameGuess");
+	currentFrameCont.error = document.getElementById("currentFrameError");
 
 	document.addEventListener("keydown", function(e) {
 		var keyId = e.which;
@@ -331,6 +344,7 @@ function drawFrame(frame, isPlayback=false) {
 		drawPlaybackBigMarker(frame.mousePath[frame.mousePath.length-1], mousePathColor);
 		drawPlaybackBigMarker(frame.guessPath[frame.guessPath.length-1], guessPathColor);
 	}
+	frame.showCurrent();
 }
 
 function tick() {
