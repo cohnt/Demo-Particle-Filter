@@ -91,6 +91,7 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 			}
 			currentFrame = this.id.slice(5);
 			drawFrame(frames[currentFrame], true);
+			window.scrollTo(0, 0);
 		});
 
 		frameListTableHeader.parentNode.insertBefore(row, frameListTableHeader.nextSibling);
