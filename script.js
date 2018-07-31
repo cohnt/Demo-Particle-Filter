@@ -39,6 +39,7 @@ var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
 var particles = []; //Array of the particles used for the filter
 var running = false; //Whether or not the particle filter is running.
+var stop = false; //Whether or not to stop running the particle filter.
 
 ///////////////////////////////////////////
 /// CLASSES
@@ -86,6 +87,7 @@ function mouseMoveCanvas(event) {
 }
 function mouseClickCanvas() {
 	if(running) {
+		stop = true;
 		return;
 	}
 	reset();
@@ -218,8 +220,9 @@ function drawFrame() {
 }
 
 function tick() {
-	if(!inCanvas) {
+	if(!inCanvas || stop) {
 		running = false;
+		stop = false;
 		return;
 	}
 
