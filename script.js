@@ -27,6 +27,7 @@ var weightColorMultiplier = 200;
 
 var canvas; //The html object for the canvas
 var frameListCont; //The html object for the div where frames and frame information is listed
+var frameListTableHeader; //The html object for the header row of the frame list table
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
@@ -66,17 +67,21 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 	this.guessPath = guessPathAtTime.slice();
 
 	this.log = function() {
-		var div = document.createElement("div");
-		var text = document.createTextNode("Frame " + this.id);
-		div.appendChild(text);
-		div.setAttribute("id", "frame" + this.id);
-		div.addEventListener("click", function() {
+		var row = document.createElement("tr");
+		var titleCont = document.createElement("td");
+		var titleText = document.createTextNode("Frame " + this.id);
+		titleCont.appendChild(titleText);
+
+		row.appendChild(titleCont);
+		row.setAttribute("id", "frame" + this.id);
+		row.addEventListener("click", function() {
 			if(running) {
 				return;
 			}
 			drawFrame(frames[this.id.slice(5)], true);
 		});
-		frameListCont.prepend(div);
+
+		frameListTableHeader.parentNode.insertBefore(row, frameListTableHeader.nextSibling);
 	}
 }
 
@@ -94,6 +99,9 @@ function setup() {
 	canvas.addEventListener("click", mouseClickCanvas);
 
 	frameListCont = document.getElementById("frameListCont");
+	frameListTableHeader = document.getElementById("frameListTableHeader");
+
+	//TODO: Add header information
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
@@ -330,9 +338,9 @@ function reset() {
 	guessPath = [];
 	particles = [];
 	frames = [];
-	while(frameListCont.firstChild) {
+	while(frameListTableHeader.nextSibling) {
 		//Delete all children of frameListCont.
-		frameListCont.removeChild(frameListCont.firstChild);
+		frameListTableHeader.parentNode.removeChild(frameListTableHeader.nextSibling);
 	}
 }
 
