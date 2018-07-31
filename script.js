@@ -305,14 +305,16 @@ function tick() {
 
 	measureParticles();
 	calculateWeights();
-	resample();
 	makePathGuess();
+	
+	saveFrame();
+	frames[frames.length-1].log();
+
+	resample();
 	translateParticles();
 	measureParticles();
 	calculateWeights();
 
-	saveFrame();
-	frames[frames.length-1].log();
 
 	if(mousePath.length > numSamplesToDisplay) {
 		mousePath.shift();
