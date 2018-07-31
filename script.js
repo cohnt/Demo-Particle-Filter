@@ -56,10 +56,12 @@ function Particle(pos, heading) {
 	this.predictedDist2 = 0;
 	this.predictedHeading = 0;
 }
-function Frame(particles_in, mousePos_in, mouseHeading_in) {
+function Frame(particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, guessPathAtTime) {
 	this.particles = particles_in.slice();
 	this.mousePos = mousePos_in.slice();
 	this.mouseHeading = mouseHeading_in;
+	this.mousePath = mousePathAtTime;
+	this.guessPath = guessPathAtTime;
 }
 
 ///////////////////////////////////////////
@@ -246,9 +248,9 @@ function drawFrame(frame) {
 	for(var i=0; i<frame.particles.length; ++i) {
 		drawParticle(frame.particles[i]);
 	}
-	drawPath(mousePath, mousePathColor);
-	drawPath(guessPath, guessPathColor);
-	connectPaths(mousePath, guessPath, connectPathColor);
+	drawPath(frame.mousePath, mousePathColor);
+	drawPath(frame.guessPath, guessPathColor);
+	connectPaths(frame.mousePath, frame.guessPath, connectPathColor);
 }
 
 function tick() {
@@ -279,7 +281,6 @@ function tick() {
 	if(mousePath.length > numSamplesToDisplay) {
 		mousePath.shift();
 		guessPath.shift();
-		frames.shift();
 	}
 
 	drawFrame(frames[frames.length-1]);
@@ -366,7 +367,7 @@ function translateParticles() {
 }
 
 function saveFrame() {
-	var frame = new Frame(particles, mousePos, mouseHeading);
+	var frame = new Frame(particles, mousePos, mouseHeading, mousePath, guessPath);
 	frames.push(frame);
 }
 
