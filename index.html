@@ -12,6 +12,25 @@
 	<p>You can also use the left and right arrow keys to navigate, 0 to jump to the first frame, and 9 to jump to the last.</p>
 </div>
 <br>
+<div>
+	<table>
+		<tbody>
+			<tr>
+				<th style="padding: 0px 8px; text-align: left">Frame #</th>
+				<th style="padding: 0px 8px; text-align: left">Actual Position</th>
+				<th style="padding: 0px 8px; text-align: left">Predicted Position</th>
+				<th style="padding: 0px 8px; text-align: left">Error</th>
+			</tr>
+			<tr>
+				<td id="currentFrameNumber" style="padding: 2px 8px;"></td>
+				<td id="currentFrameActual" style="padding: 2px 8px;"></td>
+				<td id="currentFrameGuess" style="padding: 2px 8px;"></td>
+				<td id="currentFrameError" style="padding: 2px 8px;"></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<br>
 <div style="display: inline-block;">
 	<canvas id="canvas" style="border: 1px dotted black; background-color: #eeeeee"></canvas>
 </div>
