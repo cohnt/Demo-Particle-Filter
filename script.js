@@ -12,6 +12,7 @@ var guessPathColor = "grey";
 var connectPathColor = "black";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
+var particleDispHeadingLength = 5; //Length of the direction marker for each particle
 var tickRate = 8; //Given in ticks/second
 var numParticles = 500;
 var particleSpeedNoise = 0.5; //Up to double or down to half speed
@@ -229,6 +230,11 @@ function drawParticle(p) {
 	ctx.arc(p.pos[0], p.pos[1], particleDispRadius, 0, 2*Math.PI, true);
 	ctx.closePath();
 	ctx.fill();
+	ctx.beginPath();
+	ctx.moveTo(p.pos[0], p.pos[1]);
+	ctx.lineTo(p.pos[0] + (particleDispHeadingLength*Math.cos(p.heading)),
+		p.pos[1] + (particleDispHeadingLength*Math.sin(p.heading)));
+	ctx.stroke();
 }
 function clearCanvas() {
 	//
