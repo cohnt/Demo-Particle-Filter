@@ -12,6 +12,8 @@ var guessPathColor = "grey";
 var connectPathColor = "black";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
+var particleDispHeadingLength = 5; //Length of the direction marker for each particle
+var playbackMarkerRadius = 4;
 var tickRate = 8; //Given in ticks/second
 var numParticles = 500;
 var particleSpeedNoise = 0.5; //Up to double or down to half speed
@@ -24,6 +26,7 @@ var weightColorMultiplier = 200;
 ///////////////////////////////////////////
 
 var canvas; //The html object for the canvas
+var frameListCont; //The html object for the div where frames and frame information is listed
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
@@ -39,6 +42,7 @@ var pillarHeading = 0; //Angle between the mouse heading and the mouse->pillar l
 var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
 var particles = []; //Array of the particles used for the filter
+var frames = []; //An array of each frame, with all interesting information
 var running = false; //Whether or not the particle filter is running.
 var stop = false; //Whether or not to stop running the particle filter.
 
@@ -53,6 +57,28 @@ function Particle(pos, heading) {
 	this.predictedDist2 = 0;
 	this.predictedHeading = 0;
 }
+function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, guessPathAtTime) {
+	this.id = id;
+	this.particles = particles_in.slice();
+	this.mousePos = mousePos_in.slice();
+	this.mouseHeading = mouseHeading_in;
+	this.mousePath = mousePathAtTime.slice();
+	this.guessPath = guessPathAtTime.slice();
+
+	this.log = function() {
+		var div = document.createElement("div");
+		var text = document.createTextNode("Frame " + this.id);
+		div.appendChild(text);
+		div.setAttribute("id", "frame" + this.id);
+		div.addEventListener("click", function() {
+			if(running) {
+				return;
+			}
+			drawFrame(frames[this.id.slice(5)], true);
+		});
+		frameListCont.prepend(div);
+	}
+}
 
 ///////////////////////////////////////////
 /// FUNCTIONS
@@ -66,6 +92,8 @@ function setup() {
 	canvas.addEventListener("mouseleave", mouseLeaveCanvas);
 	canvas.addEventListener("mousemove", function(event) { mouseMoveCanvas(event); });
 	canvas.addEventListener("click", mouseClickCanvas);
+
+	frameListCont = document.getElementById("frameListCont");
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
@@ -172,6 +200,10 @@ function connectPaths(path1, path2, color) {
 	ctx.setLineDash([]); //Reset dashed lines.
 }
 function weightToColor(weight) {
+	if(weight > 1) {
+		weight = 1;
+	}
+
 	//Create HSL
 	var h = ((1-weight)*240)/360;
 	var s = 1;
@@ -220,20 +252,39 @@ function drawParticle(p) {
 	ctx.arc(p.pos[0], p.pos[1], particleDispRadius, 0, 2*Math.PI, true);
 	ctx.closePath();
 	ctx.fill();
+	ctx.beginPath();
+	ctx.moveTo(p.pos[0], p.pos[1]);
+	ctx.lineTo(p.pos[0] + (particleDispHeadingLength*Math.cos(p.heading)),
+		p.pos[1] + (particleDispHeadingLength*Math.sin(p.heading)));
+	ctx.stroke();
+}
+function drawPlaybackBigMarker(loc, color) {
+	ctx.strokeStyle = color;
+	ctx.fillStyle = color;
+
+	ctx.beginPath();
+	ctx.moveTo(loc[0], loc[1]);
+	ctx.arc(loc[0], loc[1], playbackMarkerRadius, 0, 2*Math.PI, true);
+	ctx.closePath();
+	ctx.fill();
 }
 function clearCanvas() {
 	//
 	ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
 }
-function drawFrame() {
+function drawFrame(frame, isPlayback=false) {
 	clearCanvas();
 	drawPillar();
-	for(var i=0; i<particles.length; ++i) {
-		drawParticle(particles[i]);
+	for(var i=0; i<frame.particles.length; ++i) {
+		drawParticle(frame.particles[i]);
 	}
-	drawPath(mousePath, mousePathColor);
-	drawPath(guessPath, guessPathColor);
-	connectPaths(mousePath, guessPath, connectPathColor);
+	drawPath(frame.mousePath, mousePathColor);
+	drawPath(frame.guessPath, guessPathColor);
+	connectPaths(frame.mousePath, frame.guessPath, connectPathColor);
+	if(isPlayback) {
+		drawPlaybackBigMarker(frame.mousePath[frame.mousePath.length-1], mousePathColor);
+		drawPlaybackBigMarker(frame.guessPath[frame.guessPath.length-1], guessPathColor);
+	}
 }
 
 function tick() {
@@ -254,17 +305,23 @@ function tick() {
 
 	measureParticles();
 	calculateWeights();
+	makePathGuess();
+	
+	saveFrame();
+	frames[frames.length-1].log();
+
 	resample();
 	translateParticles();
 	measureParticles();
 	calculateWeights();
+
 
 	if(mousePath.length > numSamplesToDisplay) {
 		mousePath.shift();
 		guessPath.shift();
 	}
 
-	drawFrame();
+	drawFrame(frames[frames.length-1]);
 
 	window.setTimeout(tick, Math.floor(1000 / tickRate));
 }
@@ -272,6 +329,11 @@ function reset() {
 	mousePath = [];
 	guessPath = [];
 	particles = [];
+	frames = [];
+	while(frameListCont.firstChild) {
+		//Delete all children of frameListCont.
+		frameListCont.removeChild(frameListCont.firstChild);
+	}
 }
 
 function generateParticles() {
@@ -325,17 +387,6 @@ function resample() {
 	particles = newParticles.slice();
 }
 function translateParticles() {
-	// var prev = guessPath[guessPath.length-1].slice();
-
-	var total = [0, 0];
-	for(var i=0; i<particles.length; ++i) {
-		total[0] += particles[i].pos[0];
-		total[1] += particles[i].pos[1];
-	}
-	total[0] /= particles.length;
-	total[1] /= particles.length;
-	guessPath.push(total);
-
 	var heading = mouseHeading;
 	var speed = Math.sqrt(Math.pow(mouseVel[0], 2) + Math.pow(mouseVel[1], 2));
 	for(var i=0; i<particles.length; ++i) {
@@ -345,6 +396,21 @@ function translateParticles() {
 		particles[i].pos[1] += (speed + speedNoise) * (mouseTime - oldMouseTime) * Math.sin(heading + headingNoise);
 		particles[i].heading = heading + headingNoise;
 	}
+}
+function makePathGuess() {
+	var total = [0, 0];
+	for(var i=0; i<particles.length; ++i) {
+		total[0] += particles[i].pos[0];
+		total[1] += particles[i].pos[1];
+	}
+	total[0] /= particles.length;
+	total[1] /= particles.length;
+	guessPath.push(total);
+}
+
+function saveFrame() {
+	var frame = new Frame(frames.length, particles, mousePos, mouseHeading, mousePath, guessPath);
+	frames.push(frame);
 }
 
 function dist2(a, b) {
