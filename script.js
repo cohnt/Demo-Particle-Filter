@@ -116,6 +116,7 @@ function setup() {
 
 	document.addEventListener("keydown", function(e) {
 		var keyId = e.which;
+		console.log("Key down: " + keyId);
 		if(keyId == 39) {
 			++currentFrame;
 			if(currentFrame >= frames.length) {
@@ -128,6 +129,14 @@ function setup() {
 			if(currentFrame < 0) {
 				++currentFrame;
 			}
+			drawFrame(frames[currentFrame], true);
+		}
+		else if(keyId == 48) {
+			currentFrame = 0;
+			drawFrame(frames[currentFrame], true);
+		}
+		else if(keyId == 57) {
+			currentFrame = frames.length-1;
 			drawFrame(frames[currentFrame], true);
 		}
 	});
