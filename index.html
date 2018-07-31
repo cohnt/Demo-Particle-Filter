@@ -5,9 +5,23 @@
 </head>
 <body>
 
-<p>Move your mouse over the canvas, and click to start localizing the pointer in the room.</p>
-<p>To reset, just move your mouse out of the canvas.</p>
-<canvas id="canvas" style="border: 1px dotted black; background-color: #eeeeee"></canvas>
+<div id="Instructions">
+	<p>Move your mouse over the canvas, and click to start localizing the pointer in the room.</p>
+	<p>To reset, click again or move your mouse out of the canvas.</p>
+</div>
+<br>
+<div style="display: inline-block;">
+	<canvas id="canvas" style="border: 1px dotted black; background-color: #eeeeee"></canvas>
+</div>
+<div style="display: inline-block;">
+	<!-- The user can set parameters here -->
+</div>
+<br>
+<div id="frameList">
+	<!-- List of each frame, with information about that frame -->
+	<!-- Most recent at the top -->
+	<!-- Click a frame to view it after simulation is finished -->
+</div>
 
 <script src="./script.js" type="text/javascript"></script>
 

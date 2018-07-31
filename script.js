@@ -8,13 +8,16 @@ var pillarRadius = 10;
 var pillarStrokeStyle = "black";
 var pillarFillStyle = "#999999";
 var mousePathColor = "black";
-var guessPathColor = "red";
+var guessPathColor = "grey";
+var connectPathColor = "black";
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
-var tickRate = 25; //Given in ticks/second
-var numParticles = 400;
+var tickRate = 8; //Given in ticks/second
+var numParticles = 500;
 var particleSpeedNoise = 0.5; //Up to double or down to half speed
 var particleHeadingNoise = Math.PI / 24; //Up to 15 degrees to either side
+var numSamplesToDisplay = 25; //How many markers on the path should be kept.
+var weightColorMultiplier = 200;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -37,6 +40,7 @@ var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
 var particles = []; //Array of the particles used for the filter
 var running = false; //Whether or not the particle filter is running.
+var stop = false; //Whether or not to stop running the particle filter.
 
 ///////////////////////////////////////////
 /// CLASSES
@@ -84,6 +88,7 @@ function mouseMoveCanvas(event) {
 }
 function mouseClickCanvas() {
 	if(running) {
+		stop = true;
 		return;
 	}
 	reset();
@@ -151,6 +156,21 @@ function drawPath(path, color) {
 		ctx.fillRect(path[i][0] - (foo/2), path[i][1] - (foo/2), foo, foo);
 	}
 }
+function connectPaths(path1, path2, color) {
+	if(path1.length != path2.length) {
+		throw("Path lengths do not match!");
+	}
+
+	ctx.strokeStyle = color;
+	ctx.setLineDash([1, 2]); //1 pixel on, 2 pixels off
+	for(var i=0; i<path1.length; ++i) {
+		ctx.beginPath();
+		ctx.moveTo(path1[i][0], path1[i][1]);
+		ctx.lineTo(path2[i][0], path2[i][1]);
+		ctx.stroke();
+	}
+	ctx.setLineDash([]); //Reset dashed lines.
+}
 function weightToColor(weight) {
 	//Create HSL
 	var h = ((1-weight)*240)/360;
@@ -192,7 +212,7 @@ function weightToColor(weight) {
 	return rgbToHex(r, g, b);
 }
 function drawParticle(p) {
-	color = weightToColor(50*p.weight);
+	color = weightToColor(p.weight * weightColorMultiplier);
 	ctx.strokeStyle = color;
 	ctx.fillStyle = color;
 	ctx.beginPath();
@@ -213,11 +233,13 @@ function drawFrame() {
 	}
 	drawPath(mousePath, mousePathColor);
 	drawPath(guessPath, guessPathColor);
+	connectPaths(mousePath, guessPath, connectPathColor);
 }
 
 function tick() {
-	if(!inCanvas) {
+	if(!inCanvas || stop) {
 		running = false;
+		stop = false;
 		return;
 	}
 
@@ -236,6 +258,11 @@ function tick() {
 	translateParticles();
 	measureParticles();
 	calculateWeights();
+
+	if(mousePath.length > numSamplesToDisplay) {
+		mousePath.shift();
+		guessPath.shift();
+	}
 
 	drawFrame();
 
