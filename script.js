@@ -322,6 +322,11 @@ function reset() {
 	mousePath = [];
 	guessPath = [];
 	particles = [];
+	frames = [];
+	while(frameListCont.firstChild) {
+		//Delete all children of frameListCont.
+		frameListCont.removeChild(frameListCont.firstChild);
+	}
 }
 
 function generateParticles() {
