@@ -24,6 +24,7 @@ var weightColorMultiplier = 200;
 ///////////////////////////////////////////
 
 var canvas; //The html object for the canvas
+var frameListCont; //The html object for the div where frames and frame information is listed
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
@@ -39,6 +40,7 @@ var pillarHeading = 0; //Angle between the mouse heading and the mouse->pillar l
 var mousePath = []; //List of [x, y] locations the mouse was at each sample
 var guessPath = []; //The particle filter's best guess of the mouse's path
 var particles = []; //Array of the particles used for the filter
+var frames = []; //An array of each frame, with all interesting information
 var running = false; //Whether or not the particle filter is running.
 var stop = false; //Whether or not to stop running the particle filter.
 
@@ -53,6 +55,10 @@ function Particle(pos, heading) {
 	this.predictedDist2 = 0;
 	this.predictedHeading = 0;
 }
+function Frame(particles, mousePos) {
+	this.particles = particles.slice();
+	this.mousePos = mousePos.slice();
+}
 
 ///////////////////////////////////////////
 /// FUNCTIONS
@@ -66,6 +72,8 @@ function setup() {
 	canvas.addEventListener("mouseleave", mouseLeaveCanvas);
 	canvas.addEventListener("mousemove", function(event) { mouseMoveCanvas(event); });
 	canvas.addEventListener("click", mouseClickCanvas);
+
+	frameListCont = document.getElementById("frameListCont");
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
