@@ -74,7 +74,7 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 			var eltCont = document.createElement("td");
 			var eltText = document.createTextNode(contents);
 			eltCont.appendChild(eltText);
-			eltCont.style.padding = "2px 0px";
+			eltCont.style.padding = "2px 8px";
 			row.appendChild(eltCont);
 		}
 
