@@ -60,8 +60,8 @@ function Frame(particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, gues
 	this.particles = particles_in.slice();
 	this.mousePos = mousePos_in.slice();
 	this.mouseHeading = mouseHeading_in;
-	this.mousePath = mousePathAtTime;
-	this.guessPath = guessPathAtTime;
+	this.mousePath = mousePathAtTime.slice();
+	this.guessPath = guessPathAtTime.slice();
 }
 
 ///////////////////////////////////////////
