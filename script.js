@@ -302,6 +302,7 @@ function tick() {
 	measureParticles();
 	calculateWeights();
 	resample();
+	makePathGuess();
 	translateParticles();
 	measureParticles();
 	calculateWeights();
@@ -380,17 +381,6 @@ function resample() {
 	particles = newParticles.slice();
 }
 function translateParticles() {
-	// var prev = guessPath[guessPath.length-1].slice();
-
-	var total = [0, 0];
-	for(var i=0; i<particles.length; ++i) {
-		total[0] += particles[i].pos[0];
-		total[1] += particles[i].pos[1];
-	}
-	total[0] /= particles.length;
-	total[1] /= particles.length;
-	guessPath.push(total);
-
 	var heading = mouseHeading;
 	var speed = Math.sqrt(Math.pow(mouseVel[0], 2) + Math.pow(mouseVel[1], 2));
 	for(var i=0; i<particles.length; ++i) {
@@ -400,6 +390,16 @@ function translateParticles() {
 		particles[i].pos[1] += (speed + speedNoise) * (mouseTime - oldMouseTime) * Math.sin(heading + headingNoise);
 		particles[i].heading = heading + headingNoise;
 	}
+}
+function makePathGuess() {
+	var total = [0, 0];
+	for(var i=0; i<particles.length; ++i) {
+		total[0] += particles[i].pos[0];
+		total[1] += particles[i].pos[1];
+	}
+	total[0] /= particles.length;
+	total[1] /= particles.length;
+	guessPath.push(total);
 }
 
 function saveFrame() {
