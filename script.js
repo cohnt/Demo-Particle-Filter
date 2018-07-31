@@ -57,12 +57,27 @@ function Particle(pos, heading) {
 	this.predictedDist2 = 0;
 	this.predictedHeading = 0;
 }
-function Frame(particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, guessPathAtTime) {
+function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, guessPathAtTime) {
+	this.id = id;
 	this.particles = particles_in.slice();
 	this.mousePos = mousePos_in.slice();
 	this.mouseHeading = mouseHeading_in;
 	this.mousePath = mousePathAtTime.slice();
 	this.guessPath = guessPathAtTime.slice();
+
+	this.log = function() {
+		var div = document.createElement("div");
+		var text = document.createTextNode("Frame " + this.id);
+		div.appendChild(text);
+		div.setAttribute("id", "frame" + this.id);
+		div.addEventListener("click", function() {
+			if(running) {
+				return;
+			}
+			drawFrame(frames[this.id.slice(5)]);
+		});
+		frameListCont.prepend(div);
+	}
 }
 
 ///////////////////////////////////////////
@@ -292,6 +307,7 @@ function tick() {
 	calculateWeights();
 
 	saveFrame();
+	frames[frames.length-1].log();
 
 	if(mousePath.length > numSamplesToDisplay) {
 		mousePath.shift();
@@ -382,7 +398,7 @@ function translateParticles() {
 }
 
 function saveFrame() {
-	var frame = new Frame(particles, mousePos, mouseHeading, mousePath, guessPath);
+	var frame = new Frame(frames.length, particles, mousePos, mouseHeading, mousePath, guessPath);
 	frames.push(frame);
 }
 
