@@ -14,7 +14,7 @@ var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
 var particleDispHeadingLength = 5; //Length of the direction marker for each particle
 var playbackMarkerRadius = 4;
-var tickRate = 8; //Given in ticks/second
+var tickRate = 25; //Given in ticks/second
 var numParticles = 500;
 var particleSpeedNoise = 0.5; //Up to double or down to half speed
 var particleHeadingNoise = Math.PI / 24; //Up to 15 degrees to either side
@@ -27,6 +27,7 @@ var weightColorMultiplier = 200;
 
 var canvas; //The html object for the canvas
 var frameListCont; //The html object for the div where frames and frame information is listed
+var frameListTableHeader; //The html object for the header row of the frame list table
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
@@ -62,21 +63,35 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 	this.particles = particles_in.slice();
 	this.mousePos = mousePos_in.slice();
 	this.mouseHeading = mouseHeading_in;
+	this.guessPos = guessPathAtTime[guessPathAtTime.length-1];
 	this.mousePath = mousePathAtTime.slice();
 	this.guessPath = guessPathAtTime.slice();
 
 	this.log = function() {
-		var div = document.createElement("div");
-		var text = document.createTextNode("Frame " + this.id);
-		div.appendChild(text);
-		div.setAttribute("id", "frame" + this.id);
-		div.addEventListener("click", function() {
+		var row = document.createElement("tr");
+
+		function addCell(row, contents) {
+			var eltCont = document.createElement("td");
+			var eltText = document.createTextNode(contents);
+			eltCont.appendChild(eltText);
+			eltCont.style.padding = "2px 8px";
+			row.appendChild(eltCont);
+		}
+
+		addCell(row, "Frame " + this.id);
+		addCell(row, " [ " + this.mousePos[0].toFixed(2) + ", " + this.mousePos[1].toFixed(2) + " ] ");
+		addCell(row, " [ " + this.guessPos[0].toFixed(2) + ", " + this.guessPos[1].toFixed(2) + " ] ");
+		addCell(row, Math.sqrt(dist2(this.mousePos, this.guessPos)).toFixed(2));
+
+		row.setAttribute("id", "frame" + this.id);
+		row.addEventListener("click", function() {
 			if(running) {
 				return;
 			}
 			drawFrame(frames[this.id.slice(5)], true);
 		});
-		frameListCont.prepend(div);
+
+		frameListTableHeader.parentNode.insertBefore(row, frameListTableHeader.nextSibling);
 	}
 }
 
@@ -94,6 +109,7 @@ function setup() {
 	canvas.addEventListener("click", mouseClickCanvas);
 
 	frameListCont = document.getElementById("frameListCont");
+	frameListTableHeader = document.getElementById("frameListTableHeader");
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
@@ -330,9 +346,9 @@ function reset() {
 	guessPath = [];
 	particles = [];
 	frames = [];
-	while(frameListCont.firstChild) {
+	while(frameListTableHeader.nextSibling) {
 		//Delete all children of frameListCont.
-		frameListCont.removeChild(frameListCont.firstChild);
+		frameListTableHeader.parentNode.removeChild(frameListTableHeader.nextSibling);
 	}
 }
 
