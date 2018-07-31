@@ -46,6 +46,7 @@ var particles = []; //Array of the particles used for the filter
 var frames = []; //An array of each frame, with all interesting information
 var running = false; //Whether or not the particle filter is running.
 var stop = false; //Whether or not to stop running the particle filter.
+var currentFrame = -1;
 
 ///////////////////////////////////////////
 /// CLASSES
@@ -88,7 +89,8 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 			if(running) {
 				return;
 			}
-			drawFrame(frames[this.id.slice(5)], true);
+			currentFrame = this.id.slice(5);
+			drawFrame(frames[currentFrame], true);
 		});
 
 		frameListTableHeader.parentNode.insertBefore(row, frameListTableHeader.nextSibling);
@@ -110,6 +112,24 @@ function setup() {
 
 	frameListCont = document.getElementById("frameListCont");
 	frameListTableHeader = document.getElementById("frameListTableHeader");
+
+	document.addEventListener("keydown", function(e) {
+		var keyId = e.which;
+		if(keyId == 39) {
+			++currentFrame;
+			if(currentFrame >= frames.length) {
+				--currentFrame;
+			}
+			drawFrame(frames[currentFrame], true);
+		}
+		else if(keyId == 37) {
+			--currentFrame;
+			if(currentFrame < 0) {
+				++currentFrame;
+			}
+			drawFrame(frames[currentFrame], true);
+		}
+	});
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
@@ -337,7 +357,8 @@ function tick() {
 		guessPath.shift();
 	}
 
-	drawFrame(frames[frames.length-1]);
+	currentFrame = frames.length-1;
+	drawFrame(frames[currentFrame]);
 
 	window.setTimeout(tick, Math.floor(1000 / tickRate));
 }
