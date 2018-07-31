@@ -63,16 +63,26 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 	this.particles = particles_in.slice();
 	this.mousePos = mousePos_in.slice();
 	this.mouseHeading = mouseHeading_in;
+	this.guessPos = guessPathAtTime[guessPathAtTime.length-1];
 	this.mousePath = mousePathAtTime.slice();
 	this.guessPath = guessPathAtTime.slice();
 
 	this.log = function() {
 		var row = document.createElement("tr");
-		var titleCont = document.createElement("td");
-		var titleText = document.createTextNode("Frame " + this.id);
-		titleCont.appendChild(titleText);
 
-		row.appendChild(titleCont);
+		function addCell(row, contents) {
+			var eltCont = document.createElement("td");
+			var eltText = document.createTextNode(contents);
+			eltCont.appendChild(eltText);
+			eltCont.style.padding = "2px 0px";
+			row.appendChild(eltCont);
+		}
+
+		addCell(row, "Frame " + this.id);
+		addCell(row, " [ " + this.mousePos[0].toFixed(2) + ", " + this.mousePos[1].toFixed(2) + " ] ");
+		addCell(row, " [ " + this.guessPos[0].toFixed(2) + ", " + this.guessPos[1].toFixed(2) + " ] ");
+		addCell(row, Math.sqrt(dist2(this.mousePos, this.guessPos)).toFixed(2));
+
 		row.setAttribute("id", "frame" + this.id);
 		row.addEventListener("click", function() {
 			if(running) {
@@ -100,8 +110,6 @@ function setup() {
 
 	frameListCont = document.getElementById("frameListCont");
 	frameListTableHeader = document.getElementById("frameListTableHeader");
-
-	//TODO: Add header information
 
 	ctx = canvas.getContext("2d");
 	drawPillar();
