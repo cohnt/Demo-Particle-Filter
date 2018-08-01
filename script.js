@@ -33,6 +33,7 @@ var canvas; //The html object for the canvas
 var frameListCont; //The html object for the div where frames and frame information is listed
 var frameListTableHeader; //The html object for the header row of the frame list table
 var currentFrameCont = {}; //Contains the html objects for the current frame display
+var parameterElts = []; //Contains the html elements for the parameter text fields
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
@@ -145,6 +146,11 @@ function setup() {
 	currentFrameCont.error = document.getElementById("currentFrameError");
 	currentFrameCont.color = document.getElementById("currentFrameColor");
 
+	var parElts = document.getElementsByClassName("parameterForm");
+	for(var i=0; i<parElts.length; ++i) {
+		parameterElts.push(parElts[i]);
+	}
+
 	document.addEventListener("keydown", function(e) {
 		var keyId = e.which;
 		console.log("Key down: " + keyId);
@@ -196,6 +202,7 @@ function mouseClickCanvas() {
 		stop = true;
 		return;
 	}
+	readonly(true);
 	reset();
 	running = true;
 	generateParticles();
@@ -376,6 +383,7 @@ function tick() {
 	if(!inCanvas || stop) {
 		running = false;
 		stop = false;
+		readonly(false);
 		return;
 	}
 
@@ -583,6 +591,13 @@ function cumsum(arr) {
 		arr[i] += arr[i-1];
 	}
 	return arr;
+}
+
+function readonly(doMakeReadonly) {
+	for(var i=0; i<parameterElts.length; ++i) {
+		parameterElts[i].readOnly = doMakeReadonly ? "true" : "false";
+		parameterElts[i].style.color = doMakeReadonly ? "grey" : "black";
+	}
 }
 
 ///////////////////////////////////////////
