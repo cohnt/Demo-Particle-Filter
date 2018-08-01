@@ -21,6 +21,7 @@ var particleHeadingNoise = Math.PI / 8; //Up to 45 degrees to either side
 var numSamplesToDisplay = 25; //How many markers on the path should be kept.
 var weightColorMultiplier = 200;
 var errorWeightColorDivisor = 300;
+var explorationFactor = 0.02; //0.0 means no particles are randomly placed for exploration, 0.5 means 50%, 1.0 means 100%
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -454,15 +455,19 @@ function resample() {
 	var weightData = particles.map(a => a.weight);
 	var newParticles = [];
 	var cs = cumsum(weightData);
-	var step = 1/(numParticles+1);
+	var step = 1/((numParticles * (1 - explorationFactor))+1);
 	var chkVal = step;
 	var chkIndex = 0;
-	for(var i=0; i<numParticles; ++i) {
+	for(var i=0; i<numParticles * (1 - explorationFactor); ++i) {
 		while(cs[chkIndex] < chkVal) {
 			++chkIndex;
 		}
 		chkVal += step;
 		newParticles[i] = new Particle(particles[chkIndex].pos, particles[chkIndex].heading);
+	}
+	for(var i=newParticles.length; i<numParticles; ++i) {
+		newParticles[i] = new Particle();
+		newParticles[i].randomize();
 	}
 	particles = newParticles.slice();
 }
