@@ -597,8 +597,14 @@ function cumsum(arr) {
 
 function readonly(doMakeReadonly) {
 	for(var i=0; i<parameterElts.length; ++i) {
-		parameterElts[i].readOnly = doMakeReadonly ? "true" : "false";
-		parameterElts[i].style.color = doMakeReadonly ? "grey" : "black";
+		if(doMakeReadonly) {
+			parameterElts[i].readOnly = "true";
+			parameterElts[i].style.color = "grey";
+		}
+		else {
+			parameterElts[i].removeAttribute("readonly");
+			parameterElts[i].style.color = "black";
+		}
 	}
 }
 
