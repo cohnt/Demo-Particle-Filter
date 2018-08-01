@@ -19,16 +19,31 @@
 <p>Of course, data is never exact; not even in this simulation. For us, this means a hardcoded localization algorithm (perhaps using trigonometry) would not necessarily be effective. In addition, one could easily imagine more and more complex scenarios, where hardcoded algorithms would quickly become intractable. In order to localize the robot under these conditions, we will use a <em>particle filter</em>.</p>
 
 <h1>What is a Particle Filter?</h1>
-<p>TODO</p>
+<p>Particle filters are a class of tools used to estimate the state of something with limited and/or incomplete measurements that contain random noise. In order to understand how particle filters work, we first have to describe what a "particle" is. Also known as a sample, a particle is really just a guess at what the state we're trying to describe could be. For example, if we knew we were in downtown Ann Arbor, but didn't know our exact location, an individual particle could be <em>the intersection of Main Street and Liberty</em>. Another particle could be <em>the intersection between Ashley and Huron.</em> And so on.</p>
+<p>With a large enough number of particles, it's likely that at least one will be close to the truth. At this point, the process is iterative. Each time we receive a new batch of information, the particle filter evaluates how well each particle fits the data, and creates a new set of particles primarily located near the best from the previous iteration. By repeating this process over and over, the particle filter can build a belief of what the state actually is.</p>
 
 <h1>How my Particle Filter Works</h1>
 <h4>1. Random Initialization of Particles</h4>
+<p></p>
+
 <h4>2. Get Robot Measurements</h4>
+<p></p>
+
 <h4>3. Weight Particles</h4>
+<p></p>
+
 <h4>4. Predict Robot Location</h4>
+<p></p>
+
 <h4>5. Resample Particles</h4>
+<p></p>
+
 <h4>6. Translate Particles</h4>
+<p></p>
+
 <h4>7. Return to Step 2 and Repeat</h4>
+<p></p>
+
 
 </body>
 </html>
