@@ -10,13 +10,14 @@ var pillarFillStyle = "#999999";
 var mousePathColor = "black";
 var guessPathColor = "grey";
 var connectPathColor = "black";
+var connectPathDashPattern = [1, 2]; //1 pixel on, 2 pixels off
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
 var particleDispHeadingLength = 5; //Length of the direction marker for each particle
 var playbackMarkerRadius = 6;
 var tickRate = 25; //Given in ticks/second
 var numParticles = 500;
-var particleSpeedNoise = 0.5; //Up to double or down to half speed
+var particleSpeedNoise = 0.5; //Up to 1.5x or down to half speed
 var particleHeadingNoise = Math.PI / 8; //Up to 45 degrees to either side
 var numSamplesToDisplay = 25; //How many markers on the path should be kept.
 var weightColorMultiplier = 200;
@@ -266,7 +267,7 @@ function connectPaths(path1, path2, color) {
 	}
 
 	ctx.strokeStyle = color;
-	ctx.setLineDash([1, 2]); //1 pixel on, 2 pixels off
+	ctx.setLineDash(connectPathDashPattern);
 	for(var i=0; i<path1.length; ++i) {
 		ctx.beginPath();
 		ctx.moveTo(path1[i][0], path1[i][1]);
