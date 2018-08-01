@@ -10,11 +10,14 @@
 <h1>The Scenario</h1>
 <p>Your mouse controls a robot in a flat plane, and you want to know its location. Unfortunatley, the robot is in an almost entirely empty space that provides very little information that can be used to localize. The only usable feature in your environment is a pillar near its center. With your robot's sensors, you can determine the following information at any point in time:</p>
 <ul>
-	<li>The robot's velocity</li>
+	<li>The robot's directional velocity (which can give us its direction of travel).</li>
 	<li>The angle between the robot's direction of motion and the pillar</li>
 	<li>The distance from the robot to the pillar</li>
 </ul>
 <img src="Scenario Diagram.png">
+<p>Of course, data is never exact; not even in this simulation. For us, this means a hardcoded localization algorithm (perhaps using trigonometry) would not necessarily be effective. In addition, one could easily imagine more and more complex scenarios, where hardcoded algorithms would quickly become intractable. In order to localize the robot under these conditions, we will use a <em>particle filter</em>.</p>
+
+<h1>What is a Particle Filter?</h1>
 
 </body>
 </html>
