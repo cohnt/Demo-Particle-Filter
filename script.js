@@ -10,18 +10,20 @@ var pillarFillStyle = "#999999";
 var mousePathColor = "black";
 var guessPathColor = "grey";
 var connectPathColor = "black";
+var connectPathDashPattern = [1, 2]; //1 pixel on, 2 pixels off
 var pathMarkerSize = 4; //It's a square
 var particleDispRadius = 2;
 var particleDispHeadingLength = 5; //Length of the direction marker for each particle
 var playbackMarkerRadius = 6;
 var tickRate = 25; //Given in ticks/second
 var numParticles = 500;
-var particleSpeedNoise = 0.5; //Up to double or down to half speed
+var particleSpeedNoise = 0.5; //Up to 1.5x or down to half speed
 var particleHeadingNoise = Math.PI / 8; //Up to 45 degrees to either side
 var numSamplesToDisplay = 25; //How many markers on the path should be kept.
 var weightColorMultiplier = 200;
 var errorWeightColorDivisor = 300;
 var explorationFactor = 0.01; //0.0 means no particles are randomly placed for exploration, 0.5 means 50%, 1.0 means 100%
+var useExplorationParticlesGuess = false; //Whether or not to use exploration particles when estimating mouse location.
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -31,6 +33,7 @@ var canvas; //The html object for the canvas
 var frameListCont; //The html object for the div where frames and frame information is listed
 var frameListTableHeader; //The html object for the header row of the frame list table
 var currentFrameCont = {}; //Contains the html objects for the current frame display
+var parameterElts = []; //Contains the html elements for the parameter text fields
 var ctx; //2D drawing context for the canvas
 var inCanvas = false; //Whether or not the mouse is in the canvas
 var rawMousePos = [0, 0]; //[x, y] location of the mouse in the canvas
@@ -143,6 +146,11 @@ function setup() {
 	currentFrameCont.error = document.getElementById("currentFrameError");
 	currentFrameCont.color = document.getElementById("currentFrameColor");
 
+	var parElts = document.getElementsByClassName("parameterForm");
+	for(var i=0; i<parElts.length; ++i) {
+		parameterElts.push(parElts[i]);
+	}
+
 	document.addEventListener("keydown", function(e) {
 		var keyId = e.which;
 		console.log("Key down: " + keyId);
@@ -194,6 +202,7 @@ function mouseClickCanvas() {
 		stop = true;
 		return;
 	}
+	readonly(true);
 	reset();
 	running = true;
 	generateParticles();
@@ -265,7 +274,7 @@ function connectPaths(path1, path2, color) {
 	}
 
 	ctx.strokeStyle = color;
-	ctx.setLineDash([1, 2]); //1 pixel on, 2 pixels off
+	ctx.setLineDash(connectPathDashPattern);
 	for(var i=0; i<path1.length; ++i) {
 		ctx.beginPath();
 		ctx.moveTo(path1[i][0], path1[i][1]);
@@ -374,6 +383,7 @@ function tick() {
 	if(!inCanvas || stop) {
 		running = false;
 		stop = false;
+		readonly(false);
 		return;
 	}
 
@@ -488,7 +498,7 @@ function makePathGuess() {
 	var total = [0, 0];
 	var numUsed = 0;
 	for(var i=0; i<particles.length; ++i) {
-		if(!particles[i].isExploration) {
+		if(!particles[i].isExploration || useExplorationParticlesGuess) {
 			total[0] += particles[i].pos[0];
 			total[1] += particles[i].pos[1];
 			++numUsed;
@@ -581,6 +591,13 @@ function cumsum(arr) {
 		arr[i] += arr[i-1];
 	}
 	return arr;
+}
+
+function readonly(doMakeReadonly) {
+	for(var i=0; i<parameterElts.length; ++i) {
+		parameterElts[i].readOnly = doMakeReadonly ? "true" : "false";
+		parameterElts[i].style.color = doMakeReadonly ? "grey" : "black";
+	}
 }
 
 ///////////////////////////////////////////
