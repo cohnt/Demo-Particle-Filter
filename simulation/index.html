@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Demo Particle Filter</title>
+	<style>
+		th {
+			padding: 0px 8px;
+			text-align: left;
+		}
+		td {
+			padding: 2px 8px;
+		}
+		.narrowRows tr td {
+			padding: 0px 8px;
+		}
+	</style>
+</head>
+<body>
+
+<div id="Instructions">
+	<h2>Instructions</h2>
+	<p>Move your mouse over the canvas, and click to start localizing the pointer in the room.</p>
+	<p>To stop the simulation, click again or move your mouse out of the canvas.</p>
+	<p>After stopping the simulation, you can view any individual frame by clicking it in the log below</p>
+	<p>You can also use the left and right arrow keys to navigate, 0 to jump to the first frame, and 9 to jump to the last.</p>
+</div>
+<br>
+<div>
+	<table>
+		<tbody>
+			<tr>
+				<th>Frame #</th>
+				<th>Actual Position</th>
+				<th>Predicted Position</th>
+				<th>Error</th>
+				<th>Error Color</th>
+			</tr>
+			<tr>
+				<td id="currentFrameNumber"></td>
+				<td id="currentFrameActual"></td>
+				<td id="currentFrameGuess"></td>
+				<td id="currentFrameError"></td>
+				<td id="currentFrameColor"></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<br>
+<div style="display: inline-block;">
+	<canvas id="canvas" style="border: 1px dotted black; background-color: #eeeeee"></canvas>
+</div>
+<div style="display: inline-block; vertical-align: top; font-size: 14px;">
+	<table>
+		<tbody class="narrowRows">
+			<tr>
+				<th>Parameter Name</th>
+				<th>Value</th>
+				<th>Description</th>
+			</tr>
+			<!-- <tr>
+				<td>Parameter</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					//
+				})(this)"></textarea></td>
+				<td>Description</td>
+			</tr> -->
+			<tr>
+				<td>Pillar Left Offset</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						pillarLocation[0] = Number(elt.value);
+					}
+				})(this);">500</textarea></td>
+				<td>The distance (in pixels) between the left wall and the pillar.</td>
+			</tr>
+			<tr>
+				<td>Pillar Top Offset</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						pillarLocation[1] = Number(elt.value);
+					}
+				})(this)">300</textarea></td>
+				<td>The distance (in pixels) between the top wall and the pillar.</td>
+			</tr>
+			<tr><td>&nbsp;</td></tr>
+			<tr>
+				<th>Visual</th>
+			</tr>
+			<tr>
+				<td>Mouse Path Color</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					mousePathColor = elt.value;
+				})(this)">black</textarea></td>
+				<td>The color of the path your mouse traces out.</td>
+			</tr>
+			<tr>
+				<td>Guess Path Color</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					guessPathColor = elt.value;
+				})(this)">grey</textarea></td>
+				<td>The color of the path the particle filter thinks your mouse has taken.</td>
+			</tr>
+			<tr>
+				<td>Connect Path Color</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					connectPathColor = elt.value;
+				})(this)">black</textarea></td>
+				<td>The color of the dashed lines connecting the guessed location to the actual.</td>
+			</tr>
+			<tr>
+				<td>Connect Path Dash Length</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							connectPathDashPattern[0] = Number(elt.value);
+						}
+					}
+				})(this)">1</textarea></td>
+				<td>The length (in pixels) of the dashes on the lines connecting guesses and actual.</td>
+			</tr>
+			<tr>
+				<td>Connect Path Space Length</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							connectPathDashPattern[1] = Number(elt.value);
+						}
+					}
+				})(this)">2</textarea></td>
+				<td>The length (in pixels) of the spaces between the dashes on said lines.</td>
+			</tr>
+			<tr>
+				<td>Path Marker Size</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							pathMarkerSize = Number(elt.value);
+						}
+					}
+				})(this)">4</textarea></td>
+				<td>The size of the markers used for the mouse and guess path.</td>
+			</tr>
+			<tr>
+				<td>Particle Size</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							particleDispRadius = Number(elt.value);
+						}
+					}
+				})(this)">2</textarea></td>
+				<td>The displayed size of each particle.</td>
+			</tr>
+			<tr>
+				<td>Particle Heading Length</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							particleDispHeadingLength = Number(elt.value);
+						}
+					}
+				})(this)">5</textarea></td>
+				<td>The displayed size of each particle's heading indicator.</td>
+			</tr>
+			<tr>
+				<td>Playback Marker Size</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							playbackMarkerRadius = Number(elt.value);
+						}
+					}
+				})(this)">6</textarea></td>
+				<td>The size of the mouse marker in the playback phase.</td>
+			</tr>
+			<tr>
+				<td>Weight Color Multiplier</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							weightColorMultiplier = Number(elt.value);
+						}
+					}
+				})(this)">0.9</textarea></td>
+				<td>Advanced: A factor that affects the heatmap-like coloration of particles.</td>
+			</tr>
+			<tr>
+				<td>Error Weight Color Divisor</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							errorWeightColorDivisor = Number(elt.value);
+						}
+					}
+				})(this)">300</textarea></td>
+				<td>Advanced: A factor that affects the heatmap-like coloration of the error bars.</td>
+			</tr>
+			<tr><td>&nbsp;</td></tr>
+			<tr>
+				<th>Particle Filter</th>
+			</tr>
+			<tr>
+				<td>Tick Rate</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							tickRate = Number(elt.value);
+						}
+					}
+				})(this)">25</textarea></td>
+				<td>Number of "ticks" per second in the simulation.</td>
+			</tr>
+			<tr>
+				<td>Number of Particles</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) > 0) {
+							numParticles = Math.floor(Number(elt.value));
+						}
+					}
+				})(this)">500</textarea></td>
+				<td>How many particles the simulation should use at a time.</td>
+			</tr>
+			<tr>
+				<td>Particle Speed Noise Factor</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) >= 0) {
+							particleHeadingNoise = Number(elt.value);
+						}
+					}
+				})(this)">0.5</textarea></td>
+				<td>The maximum amount of noise that is added to particles' speed.<br> 0.5 would mean up to 50% faster or slower, for example.</td>
+			</tr>
+			<tr>
+				<td>Particle Heading Noise</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) >= 0 && Number(elt.value) < 180) {
+							particleSpeedNoise = Math.PI * Number(elt.value) / 180;
+						}
+					}
+				})(this)">45</textarea></td>
+				<td>The maximum amount of noise that is added to particles' heading (given in degrees).</td>
+			</tr>
+			<tr>
+				<td>Exploration Factor</td>
+				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
+					if(!isNaN(elt.value)) {
+						if(Number(elt.value) >= 0 && Number(elt.value) < 0.99) {
+							explorationFactor = Number(elt.value);
+						}
+					}
+				})(this)">0.01</textarea></td>
+				<td>A value (from 0 to 1) indicating how many of the particles should be used for exploration.</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<br>
+<table id="frameListCont">
+	<tbody>
+		<!-- List of each frame, with information about that frame -->
+		<!-- Most recent at the top -->
+		<!-- Click a frame to view it after simulation is finished -->
+		<tr id="frameListTableHeader">
+			<th>Frame #</th>
+			<th>Actual Position</th>
+			<th>Predicted Position</th>
+			<th>Error</th>
+			<th>Error Color</th>
+		</tr>
+	</tbody>
+</table>
+
+<script src="./script.js" type="text/javascript"></script>
+
+<noscript>Please enable JavaScript!</noscript>
+
+</body>
+</html>
