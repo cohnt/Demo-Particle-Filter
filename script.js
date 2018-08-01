@@ -20,6 +20,7 @@ var particleSpeedNoise = 0.5; //Up to double or down to half speed
 var particleHeadingNoise = Math.PI / 8; //Up to 45 degrees to either side
 var numSamplesToDisplay = 25; //How many markers on the path should be kept.
 var weightColorMultiplier = 200;
+var errorWeightColorDivisor = 300;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -80,12 +81,15 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 			row.appendChild(eltCont);
 		}
 
+		var error = Math.sqrt(dist2(this.mousePos, this.guessPos));
+
 		addCell(row, "Frame " + this.id);
 		addCell(row, " [ " + this.mousePos[0].toFixed(2) + ", " + this.mousePos[1].toFixed(2) + " ] ");
 		addCell(row, " [ " + this.guessPos[0].toFixed(2) + ", " + this.guessPos[1].toFixed(2) + " ] ");
-		addCell(row, Math.sqrt(dist2(this.mousePos, this.guessPos)).toFixed(2));
+		addCell(row, error.toFixed(2));
 
 		row.setAttribute("id", "frame" + this.id);
+		row.style.color = errorColor(error);
 		row.addEventListener("click", function() {
 			if(running) {
 				return;
@@ -102,7 +106,9 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 		currentFrameCont.number.innerHTML = this.id;
 		currentFrameCont.actualPos.innerHTML = " [ " + this.mousePos[0].toFixed(2) + ", " + this.mousePos[1].toFixed(2) + " ] ";
 		currentFrameCont.guessPos.innerHTML = " [ " + this.guessPos[0].toFixed(2) + ", " + this.guessPos[1].toFixed(2) + " ] ";
-		currentFrameCont.error.innerHTML = Math.sqrt(dist2(this.mousePos, this.guessPos)).toFixed(2);
+		var error = Math.sqrt(dist2(this.mousePos, this.guessPos));
+		currentFrameCont.error.innerHTML = error.toFixed(2);
+		currentFrameCont.error.parentNode.style.color = errorColor(error);
 	}
 }
 
@@ -257,6 +263,13 @@ function connectPaths(path1, path2, color) {
 		ctx.stroke();
 	}
 	ctx.setLineDash([]); //Reset dashed lines.
+}
+function errorColor(error) {
+	var errorWeight = error / errorWeightColorDivisor;
+	if(errorWeight < 0) { errorWeight = 0; }
+	if(errorWeight > 1) { errorWeight = 1; }
+	errorWeight = 1 - errorWeight;
+	return weightToColor(errorWeight);
 }
 function weightToColor(weight) {
 	if(weight > 1) {
