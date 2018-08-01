@@ -22,6 +22,7 @@ var numSamplesToDisplay = 25; //How many markers on the path should be kept.
 var weightColorMultiplier = 200;
 var errorWeightColorDivisor = 300;
 var explorationFactor = 0.01; //0.0 means no particles are randomly placed for exploration, 0.5 means 50%, 1.0 means 100%
+var useExplorationParticlesGuess = false; //Whether or not to use exploration particles when estimating mouse location.
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -488,7 +489,7 @@ function makePathGuess() {
 	var total = [0, 0];
 	var numUsed = 0;
 	for(var i=0; i<particles.length; ++i) {
-		if(!particles[i].isExploration) {
+		if(!particles[i].isExploration || useExplorationParticlesGuess) {
 			total[0] += particles[i].pos[0];
 			total[1] += particles[i].pos[1];
 			++numUsed;
