@@ -512,11 +512,14 @@ function translateParticles() {
 function makePathGuess() {
 	var total = [0, 0];
 	var numUsed = 0;
+	var averageWeight = 1 / numParticles;
 	for(var i=0; i<particles.length; ++i) {
 		if(!particles[i].isExploration || useExplorationParticlesGuess) {
-			total[0] += particles[i].pos[0];
-			total[1] += particles[i].pos[1];
-			++numUsed;
+			if(particles[i].weight > averageWeight) {
+				total[0] += particles[i].pos[0];
+				total[1] += particles[i].pos[1];
+				++numUsed;
+			}
 		}
 	}
 	if(numUsed == 0) {
