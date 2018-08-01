@@ -20,7 +20,6 @@ var numParticles = 500;
 var particleSpeedNoise = 0.5; //Up to 1.5x or down to half speed
 var particleHeadingNoise = Math.PI / 8; //Up to 45 degrees to either side
 var numSamplesToDisplay = 25; //How many markers on the path should be kept.
-var weightColorMultiplier = 200;
 var errorWeightColorDivisor = 300;
 var explorationFactor = 0.01; //0.0 means no particles are randomly placed for exploration, 0.5 means 50%, 1.0 means 100%
 var useExplorationParticlesGuess = false; //Whether or not to use exploration particles when estimating mouse location.
@@ -80,6 +79,7 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 	this.guessPos = guessPathAtTime[guessPathAtTime.length-1];
 	this.mousePath = mousePathAtTime.slice();
 	this.guessPath = guessPathAtTime.slice();
+	this.maxNormalizedWeight = Math.max.apply(Math, this.particles.map(function(obj) { return obj.weight; }));
 
 	this.log = function() {
 		var row = document.createElement("tr");
@@ -336,8 +336,8 @@ function weightToColor(weight) {
 
 	return rgbToHex(r, g, b);
 }
-function drawParticle(p) {
-	color = weightToColor(p.weight * weightColorMultiplier);
+function drawParticle(p, maxWeight) {
+	color = weightToColor(p.weight / maxWeight);
 	ctx.strokeStyle = color;
 	ctx.fillStyle = color;
 	ctx.beginPath();
@@ -369,7 +369,7 @@ function drawFrame(frame, isPlayback=false) {
 	clearCanvas();
 	drawPillar();
 	for(var i=0; i<frame.particles.length; ++i) {
-		drawParticle(frame.particles[i]);
+		drawParticle(frame.particles[i], frame.maxNormalizedWeight);
 	}
 	drawPath(frame.mousePath, mousePathColor);
 	drawPath(frame.guessPath, guessPathColor);
@@ -386,6 +386,7 @@ function tick() {
 		running = false;
 		stop = false;
 		readonly(false);
+		orderParticles();
 		return;
 	}
 
@@ -517,6 +518,11 @@ function makePathGuess() {
 function saveFrame() {
 	var frame = new Frame(frames.length, particles, mousePos, mouseHeading, mousePath, guessPath);
 	frames.push(frame);
+}
+function orderParticles() {
+	for(var i=0; i<frames.length; ++i) {
+		frames[i].particles.sort(function(a, b) { return b.weight - a.weight; });
+	}
 }
 
 function dist2(a, b) {
