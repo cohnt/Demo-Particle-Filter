@@ -108,7 +108,9 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 			}
 			currentFrame = this.id.slice(5);
 			drawFrame(frames[currentFrame], true);
-			window.scrollTo(0, 0);
+
+			currentFrameCont.error.scrollIntoView();
+			window.scrollBy(0, -25);
 		});
 
 		frameListTableHeader.parentNode.insertBefore(row, frameListTableHeader.nextSibling);
@@ -595,8 +597,14 @@ function cumsum(arr) {
 
 function readonly(doMakeReadonly) {
 	for(var i=0; i<parameterElts.length; ++i) {
-		parameterElts[i].readOnly = doMakeReadonly ? "true" : "false";
-		parameterElts[i].style.color = doMakeReadonly ? "grey" : "black";
+		if(doMakeReadonly) {
+			parameterElts[i].readOnly = "true";
+			parameterElts[i].style.color = "grey";
+		}
+		else {
+			parameterElts[i].removeAttribute("readonly");
+			parameterElts[i].style.color = "black";
+		}
 	}
 }
 
