@@ -87,9 +87,10 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 		addCell(row, " [ " + this.mousePos[0].toFixed(2) + ", " + this.mousePos[1].toFixed(2) + " ] ");
 		addCell(row, " [ " + this.guessPos[0].toFixed(2) + ", " + this.guessPos[1].toFixed(2) + " ] ");
 		addCell(row, error.toFixed(2));
+		addCell(row, "");
 
 		row.setAttribute("id", "frame" + this.id);
-		row.style.color = errorColor(error);
+		row.lastChild.style.backgroundColor = errorColor(error);
 		row.addEventListener("click", function() {
 			if(running) {
 				return;
@@ -108,7 +109,7 @@ function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, 
 		currentFrameCont.guessPos.innerHTML = " [ " + this.guessPos[0].toFixed(2) + ", " + this.guessPos[1].toFixed(2) + " ] ";
 		var error = Math.sqrt(dist2(this.mousePos, this.guessPos));
 		currentFrameCont.error.innerHTML = error.toFixed(2);
-		currentFrameCont.error.parentNode.style.color = errorColor(error);
+		currentFrameCont.color.style.backgroundColor = errorColor(error);
 	}
 }
 
@@ -132,6 +133,7 @@ function setup() {
 	currentFrameCont.actualPos = document.getElementById("currentFrameActual");
 	currentFrameCont.guessPos = document.getElementById("currentFrameGuess");
 	currentFrameCont.error = document.getElementById("currentFrameError");
+	currentFrameCont.color = document.getElementById("currentFrameColor");
 
 	document.addEventListener("keydown", function(e) {
 		var keyId = e.which;
