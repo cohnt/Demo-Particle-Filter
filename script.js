@@ -21,6 +21,7 @@ var particleHeadingNoise = Math.PI / 8; //Up to 45 degrees to either side
 var numSamplesToDisplay = 25; //How many markers on the path should be kept.
 var weightColorMultiplier = 200;
 var errorWeightColorDivisor = 300;
+var explorationFactor = 0.01; //0.0 means no particles are randomly placed for exploration, 0.5 means 50%, 1.0 means 100%
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -54,12 +55,19 @@ var currentFrame = -1;
 /// CLASSES
 ///////////////////////////////////////////
 
-function Particle(pos, heading) {
+function Particle(pos=[0,0], heading=0) {
 	this.pos = pos.slice();
 	this.heading = heading;
 	this.weight = 0;
 	this.predictedDist2 = 0;
 	this.predictedHeading = 0;
+	this.isExploration = false;
+
+	this.randomize = function() {
+		this.pos = [Math.random() * canvasSize.width, Math.random() * canvasSize.height];
+		this.heading = Math.random() * 2 * Math.PI - Math.PI;
+		this.isExploration = true;
+	}
 }
 function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, guessPathAtTime) {
 	this.id = id;
@@ -414,9 +422,8 @@ function reset() {
 
 function generateParticles() {
 	for(var i=0; i<numParticles; ++i) {
-		var pos = [Math.random() * canvasSize.width, Math.random() * canvasSize.height];
-		var heading = Math.random() * 2 * Math.PI;
-		particles[i] = new Particle(pos, heading);
+		particles[i] = new Particle();
+		particles[i].randomize();
 	}
 }
 function measureParticles() {
@@ -450,15 +457,19 @@ function resample() {
 	var weightData = particles.map(a => a.weight);
 	var newParticles = [];
 	var cs = cumsum(weightData);
-	var step = 1/(numParticles+1);
+	var step = 1/((numParticles * (1 - explorationFactor))+1);
 	var chkVal = step;
 	var chkIndex = 0;
-	for(var i=0; i<numParticles; ++i) {
+	for(var i=0; i<numParticles * (1 - explorationFactor); ++i) {
 		while(cs[chkIndex] < chkVal) {
 			++chkIndex;
 		}
 		chkVal += step;
 		newParticles[i] = new Particle(particles[chkIndex].pos, particles[chkIndex].heading);
+	}
+	for(var i=newParticles.length; i<numParticles; ++i) {
+		newParticles[i] = new Particle();
+		newParticles[i].randomize();
 	}
 	particles = newParticles.slice();
 }
@@ -475,12 +486,19 @@ function translateParticles() {
 }
 function makePathGuess() {
 	var total = [0, 0];
+	var numUsed = 0;
 	for(var i=0; i<particles.length; ++i) {
-		total[0] += particles[i].pos[0];
-		total[1] += particles[i].pos[1];
+		if(!particles[i].isExploration) {
+			total[0] += particles[i].pos[0];
+			total[1] += particles[i].pos[1];
+			++numUsed;
+		}
 	}
-	total[0] /= particles.length;
-	total[1] /= particles.length;
+	if(numUsed == 0) {
+		numUsed = 1;
+	}
+	total[0] /= numUsed;
+	total[1] /= numUsed;
 	guessPath.push(total);
 }
 
