@@ -386,6 +386,7 @@ function tick() {
 		running = false;
 		stop = false;
 		readonly(false);
+		orderParticles();
 		return;
 	}
 
@@ -517,6 +518,11 @@ function makePathGuess() {
 function saveFrame() {
 	var frame = new Frame(frames.length, particles, mousePos, mouseHeading, mousePath, guessPath);
 	frames.push(frame);
+}
+function orderParticles() {
+	for(var i=0; i<frames.length; ++i) {
+		frames[i].particles.sort(function(a, b) { return b.weight - a.weight; });
+	}
 }
 
 function dist2(a, b) {
