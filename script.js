@@ -54,12 +54,17 @@ var currentFrame = -1;
 /// CLASSES
 ///////////////////////////////////////////
 
-function Particle(pos, heading) {
+function Particle(pos=[0,0], heading=0) {
 	this.pos = pos.slice();
 	this.heading = heading;
 	this.weight = 0;
 	this.predictedDist2 = 0;
 	this.predictedHeading = 0;
+
+	this.randomize = function() {
+		this.pos = [Math.random() * canvasSize.width, Math.random() * canvasSize.height];
+		this.heading = Math.random() * 2 * Math.PI - Math.PI;
+	}
 }
 function Frame(id, particles_in, mousePos_in, mouseHeading_in, mousePathAtTime, guessPathAtTime) {
 	this.id = id;
@@ -414,9 +419,8 @@ function reset() {
 
 function generateParticles() {
 	for(var i=0; i<numParticles; ++i) {
-		var pos = [Math.random() * canvasSize.width, Math.random() * canvasSize.height];
-		var heading = Math.random() * 2 * Math.PI;
-		particles[i] = new Particle(pos, heading);
+		particles[i] = new Particle();
+		particles[i].randomize();
 	}
 }
 function measureParticles() {
