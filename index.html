@@ -26,9 +26,7 @@
 <p><b>1. Initialization of Particles</b><br>
 To start out, the algorithm randomly places a large number of particles in the state space, that is, all possible locations of the robot. Because there are a large number of particles, seeding them randomly ensures a relatively even distribution across the state space, and that there will be particles near the true location of the robot.</p>
 <img src="Random Initialization.png">
-<!-- TODO: Better image of the initialization -->
-<h6 style="display: block; width: 999px; text-align: center;">Every single dot is a particle, and the small line coming out of it represents its heading.</h6>
-<!-- TODO: Set width to the width of the new image -->
+<h6 style="display: block; width: 997px; text-align: center;">Every single dot is a particle, and the small line coming out of it represents its heading.</h6>
 
 <p><b>2. Get Robot Measurements</b><br>
 Each iteration of the algorithm starts out with data that is received from the robot. In our case, we recieve 3 pieces of information -- the robot's velocity, the heading to the pillar, and the distance to the pillar.</p>
@@ -40,7 +38,7 @@ Based on the information we know about the robot, we can assign each particle a 
 By averaging the location of all the particles with higher-than-average weights, the particle filter approximates the location of the robot.
 </p>
 <img src="Average.png">
-<h6 style="display: block; width: 995px; text-align: center;">The actual location is the black circle, and the average location is the grey circle.</h6>
+<h6 style="display: block; width: 995px; text-align: center;">The actual location is the black circle, and the average location is the grey circle nearby (not the pillar in the middle).</h6>
 
 <p><b>5. Resample Particles</b><br>
 The algorithm randomly distributes the next set of particles at the locations of the previous set, with most of the new particles being put by the old particles with the highest weights. In addition, a small percentage of the particles are randomly seeded throughout the world, in case the robot isn't near any of the current particles.</p>
