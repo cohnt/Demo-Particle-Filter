@@ -6,7 +6,7 @@
 <body>
 <h3><a href="http://tommycohn.com/Demo-Particle-Filter/simulation/index.html" target="_self">Just take me to the simulation!</a></h3>
 
-<h5>I undertook this project to better understand particle filters. It was inspired by <a href="https://bayesianadventures.wordpress.com/2014/04/23/robot-navigation-with-a-particle-filter/">bayesianadventures.wordpress.com</a></h5>
+<h5>I undertook this project to better understand particle filters. It was inspired by the work of <a href="https://bayesianadventures.wordpress.com/2014/04/23/robot-navigation-with-a-particle-filter/">bayesianadventures.wordpress.com</a>.</h5>
 
 <h1>The Scenario</h1>
 <p>Your mouse controls a robot in a flat plane, and you want to know its location. Unfortunatley, the robot is in an almost entirely empty space that provides very little information that can be used to localize. The only usable feature in your environment is a pillar near its center. With your robot's sensors, you can determine the following information at any point in time:</p>
@@ -23,26 +23,29 @@
 <p>With a large enough number of particles, it's likely that at least one will be close to the truth. At this point, the process is iterative. Each time we receive a new batch of information, the particle filter evaluates how well each particle fits the data, and creates a new set of particles primarily located near the best from the previous iteration. By repeating this process over and over, the particle filter can build a belief of what the state actually is.</p>
 
 <h1>How my Particle Filter Works</h1>
-<h4>1. Random Initialization of Particles</h4>
-<p></p>
+<p><b>1. Initialization of Particles</b><br>
+To start out, the algorithm randomly places a large number of particles in the state space, that is, all possible locations of the robot. Because there are a large number of particles, seeding them randomly ensures a relatively even distribution across the state space, and that there will be particles near the true location of the robot.</p>
+<img src="Random Initialization.png">
 
-<h4>2. Get Robot Measurements</h4>
-<p></p>
+<p><b>2. Get Robot Measurements</b><br>
+Each iteration of the algorithm starts out with data that is received from the robot. In our case, we recieve 3 pieces of information -- the robot's velocity, the heading to the pillar, and the distance to the pillar.</p>
 
-<h4>3. Weight Particles</h4>
-<p></p>
+<p><b>3. Weight Particles</b><br>
+Based on the information we know about the robot, we can assign each particle a "weight" based on how well it matches with the robot's data. A higher weight means the particle is a closer match. This is indicated on the display by the color of the particle; blue represents a low weight, up to red which represents a high weight.</p>
 
-<h4>4. Predict Robot Location</h4>
-<p></p>
+<p><b>4. Predict Robot Location</b><br>
+By averaging the location of all the particles with higher-than-average weights, the particle filter approximates the location of the robot.
+</p>
+<img src="Average.png">
 
-<h4>5. Resample Particles</h4>
-<p></p>
+<p><b>5. Resample Particles</b><br>
+</p>
 
-<h4>6. Translate Particles</h4>
-<p></p>
+<p><b>6. Translate Particles</b><br>
+</p>
 
-<h4>7. Return to Step 2 and Repeat</h4>
-<p></p>
+<p><b>7. Return to Step 2 and Repeat</b><br>
+</p>
 
 
 </body>
