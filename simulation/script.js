@@ -24,6 +24,12 @@ var errorWeightColorDivisor = 300;
 var weightColorMultiplier = 0.9;
 var explorationFactor = 0.01; //0.0 means no particles are randomly placed for exploration, 0.5 means 50%, 1.0 means 100%
 var useExplorationParticlesGuess = false; //Whether or not to use exploration particles when estimating mouse location.
+var drawMouseLocation = true;
+var drawGuessLocation = true;
+var drawMousePath = true;
+var drawGuessPath = true;
+var drawPathConnectors = true;
+var drawParticles = true;
 
 ///////////////////////////////////////////
 /// GLOBAL VARIABLES
@@ -164,6 +170,13 @@ function setup() {
 	for(var i=0; i<parElts.length; ++i) {
 		parameterElts.push(parElts[i]);
 	}
+
+	document.getElementById("checkboxMouseLocation").addEventListener("change", function() { drawMouseLocation = this.checked; });
+	document.getElementById("checkboxGuessLocation").addEventListener("change", function() { drawGuessLocation = this.checked; });
+	document.getElementById("checkboxMousePath").addEventListener("change", function() { drawMousePath = this.checked; });
+	document.getElementById("checkboxGuessPath").addEventListener("change", function() { drawMouseLocation = this.checked; });
+	document.getElementById("checkboxPathConnectors").addEventListener("change", function() { drawPathConnectors = this.checked; });
+	document.getElementById("checkboxParticles").addEventListener("change", function() { drawParticles = this.checked; });
 
 	document.addEventListener("keydown", function(e) {
 		var keyId = e.which;
@@ -380,15 +393,27 @@ function clearCanvas() {
 function drawFrame(frame, isPlayback=false) {
 	clearCanvas();
 	drawPillar();
-	for(var i=0; i<frame.particles.length; ++i) {
-		drawParticle(frame.particles[i], frame.maxNormalizedWeight, frame.frameColorMultiplier);
+	if(drawParticles) {
+		for(var i=0; i<frame.particles.length; ++i) {
+			drawParticle(frame.particles[i], frame.maxNormalizedWeight, frame.frameColorMultiplier);
+		}
 	}
-	drawPath(frame.mousePath, mousePathColor);
-	drawPath(frame.guessPath, guessPathColor);
-	connectPaths(frame.mousePath, frame.guessPath, connectPathColor);
+	if(drawMousePath) {
+		drawPath(frame.mousePath, mousePathColor);
+	}
+	if(drawGuessPath) {
+		drawPath(frame.guessPath, guessPathColor);
+	}
+	if(drawPathConnectors) {
+		connectPaths(frame.mousePath, frame.guessPath, connectPathColor);
+	}
 	if(isPlayback) {
-		drawPlaybackBigMarker(frame.mousePath[frame.mousePath.length-1], mousePathColor);
-		drawPlaybackBigMarker(frame.guessPath[frame.guessPath.length-1], guessPathColor);
+		if(drawMouseLocation) {
+			drawPlaybackBigMarker(frame.mousePath[frame.mousePath.length-1], mousePathColor);
+		}
+		if(drawGuessLocation) {
+			drawPlaybackBigMarker(frame.guessPath[frame.guessPath.length-1], guessPathColor);
+		}
 	}
 	frame.showCurrent();
 }
