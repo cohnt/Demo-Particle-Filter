@@ -2,280 +2,59 @@
 <html>
 <head>
 	<title>Demo Particle Filter</title>
-	<style>
-		th {
-			padding: 0px 8px;
-			text-align: left;
-		}
-		td {
-			padding: 2px 8px;
-		}
-		.narrowRows tr td {
-			padding: 0px 8px;
-		}
-	</style>
 </head>
 <body>
+<h3><a href="http://tommycohn.com/Demo-Particle-Filter/simulation/index.html" target="_self">Just take me to the simulation!</a></h3>
 
-<div id="Instructions">
-	<h2>Instructions</h2>
-	<p>Move your mouse over the canvas, and click to start localizing the pointer in the room.</p>
-	<p>To stop the simulation, click again or move your mouse out of the canvas.</p>
-	<p>After stopping the simulation, you can view any individual frame by clicking it in the log below</p>
-	<p>You can also use the left and right arrow keys to navigate, 0 to jump to the first frame, and 9 to jump to the last.</p>
-</div>
-<br>
-<div>
-	<table>
-		<tbody>
-			<tr>
-				<th>Frame #</th>
-				<th>Actual Position</th>
-				<th>Predicted Position</th>
-				<th>Error</th>
-				<th>Error Color</th>
-			</tr>
-			<tr>
-				<td id="currentFrameNumber"></td>
-				<td id="currentFrameActual"></td>
-				<td id="currentFrameGuess"></td>
-				<td id="currentFrameError"></td>
-				<td id="currentFrameColor"></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-<br>
-<div style="display: inline-block;">
-	<canvas id="canvas" style="border: 1px dotted black; background-color: #eeeeee"></canvas>
-</div>
-<div style="display: inline-block; vertical-align: top; font-size: 14px;">
-	<table>
-		<tbody class="narrowRows">
-			<tr>
-				<th>Parameter Name</th>
-				<th>Value</th>
-				<th>Description</th>
-			</tr>
-			<!-- <tr>
-				<td>Parameter</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					//
-				})(this)"></textarea></td>
-				<td>Description</td>
-			</tr> -->
-			<tr>
-				<td>Pillar Left Offset</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						pillarLocation[0] = Number(elt.value);
-					}
-				})(this);">500</textarea></td>
-				<td>The distance (in pixels) between the left wall and the pillar.</td>
-			</tr>
-			<tr>
-				<td>Pillar Top Offset</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						pillarLocation[1] = Number(elt.value);
-					}
-				})(this)">300</textarea></td>
-				<td>The distance (in pixels) between the top wall and the pillar.</td>
-			</tr>
-			<tr><td>&nbsp;</td></tr>
-			<tr>
-				<th>Visual</th>
-			</tr>
-			<tr>
-				<td>Mouse Path Color</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					mousePathColor = elt.value;
-				})(this)">black</textarea></td>
-				<td>The color of the path your mouse traces out.</td>
-			</tr>
-			<tr>
-				<td>Guess Path Color</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					guessPathColor = elt.value;
-				})(this)">grey</textarea></td>
-				<td>The color of the path the particle filter thinks your mouse has taken.</td>
-			</tr>
-			<tr>
-				<td>Connect Path Color</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					connectPathColor = elt.value;
-				})(this)">black</textarea></td>
-				<td>The color of the dashed lines connecting the guessed location to the actual.</td>
-			</tr>
-			<tr>
-				<td>Connect Path Dash Length</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							connectPathDashPattern[0] = Number(elt.value);
-						}
-					}
-				})(this)">1</textarea></td>
-				<td>The length (in pixels) of the dashes on the lines connecting guesses and actual.</td>
-			</tr>
-			<tr>
-				<td>Connect Path Space Length</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							connectPathDashPattern[1] = Number(elt.value);
-						}
-					}
-				})(this)">2</textarea></td>
-				<td>The length (in pixels) of the spaces between the dashes on said lines.</td>
-			</tr>
-			<tr>
-				<td>Path Marker Size</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							pathMarkerSize = Number(elt.value);
-						}
-					}
-				})(this)">4</textarea></td>
-				<td>The size of the markers used for the mouse and guess path.</td>
-			</tr>
-			<tr>
-				<td>Particle Size</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							particleDispRadius = Number(elt.value);
-						}
-					}
-				})(this)">2</textarea></td>
-				<td>The displayed size of each particle.</td>
-			</tr>
-			<tr>
-				<td>Particle Heading Length</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							particleDispHeadingLength = Number(elt.value);
-						}
-					}
-				})(this)">5</textarea></td>
-				<td>The displayed size of each particle's heading indicator.</td>
-			</tr>
-			<tr>
-				<td>Playback Marker Size</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							playbackMarkerRadius = Number(elt.value);
-						}
-					}
-				})(this)">6</textarea></td>
-				<td>The size of the mouse marker in the playback phase.</td>
-			</tr>
-			<tr>
-				<td>Weight Color Multiplier</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							weightColorMultiplier = Number(elt.value);
-						}
-					}
-				})(this)">0.9</textarea></td>
-				<td>Advanced: A factor that affects the heatmap-like coloration of particles.</td>
-			</tr>
-			<tr>
-				<td>Error Weight Color Divisor</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							errorWeightColorDivisor = Number(elt.value);
-						}
-					}
-				})(this)">300</textarea></td>
-				<td>Advanced: A factor that affects the heatmap-like coloration of the error bars.</td>
-			</tr>
-			<tr><td>&nbsp;</td></tr>
-			<tr>
-				<th>Particle Filter</th>
-			</tr>
-			<tr>
-				<td>Tick Rate</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							tickRate = Number(elt.value);
-						}
-					}
-				})(this)">25</textarea></td>
-				<td>Number of "ticks" per second in the simulation.</td>
-			</tr>
-			<tr>
-				<td>Number of Particles</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) > 0) {
-							numParticles = Math.floor(Number(elt.value));
-						}
-					}
-				})(this)">500</textarea></td>
-				<td>How many particles the simulation should use at a time.</td>
-			</tr>
-			<tr>
-				<td>Particle Speed Noise Factor</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) >= 0) {
-							particleHeadingNoise = Number(elt.value);
-						}
-					}
-				})(this)">0.5</textarea></td>
-				<td>The maximum amount of noise that is added to particles' speed.<br> 0.5 would mean up to 50% faster or slower, for example.</td>
-			</tr>
-			<tr>
-				<td>Particle Heading Noise</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) >= 0 && Number(elt.value) < 180) {
-							particleSpeedNoise = Math.PI * Number(elt.value) / 180;
-						}
-					}
-				})(this)">45</textarea></td>
-				<td>The maximum amount of noise that is added to particles' heading (given in degrees).</td>
-			</tr>
-			<tr>
-				<td>Exploration Factor</td>
-				<td><textarea class="parameterForm" cols="5" rows="1" onkeyup="(function(elt){
-					if(!isNaN(elt.value)) {
-						if(Number(elt.value) >= 0 && Number(elt.value) < 0.99) {
-							explorationFactor = Number(elt.value);
-						}
-					}
-				})(this)">0.01</textarea></td>
-				<td>A value (from 0 to 1) indicating how many of the particles should be used for exploration.</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-<br>
-<table id="frameListCont">
-	<tbody>
-		<!-- List of each frame, with information about that frame -->
-		<!-- Most recent at the top -->
-		<!-- Click a frame to view it after simulation is finished -->
-		<tr id="frameListTableHeader">
-			<th>Frame #</th>
-			<th>Actual Position</th>
-			<th>Predicted Position</th>
-			<th>Error</th>
-			<th>Error Color</th>
-		</tr>
-	</tbody>
-</table>
+<h5>I undertook this project to better understand particle filters. It was inspired by the work of <a href="https://bayesianadventures.wordpress.com/2014/04/23/robot-navigation-with-a-particle-filter/">bayesianadventures.wordpress.com</a>.</h5>
 
-<script src="./script.js" type="text/javascript"></script>
+<h1>The Scenario</h1>
+<p>Your mouse controls a robot in a flat plane, and you want to know its location. Unfortunatley, the robot is in an almost entirely empty space that provides very little information that can be used to localize. The only usable feature in your environment is a pillar near its center. With your robot's sensors, you can determine the following information at any point in time:</p>
+<ul>
+	<li>The robot's directional velocity (which can give us its direction of travel).</li>
+	<li>The angle between the robot's direction of motion and the pillar</li>
+	<li>The distance from the robot to the pillar</li>
+</ul>
+<img src="Scenario Diagram.png">
+<p>Of course, data is never exact; not even in this simulation. For us, this means a hardcoded localization algorithm (perhaps using trigonometry) would not necessarily be effective. In addition, one could easily imagine more and more complex scenarios, where hardcoded algorithms would quickly become intractable. In order to localize the robot under these conditions, we will use a <em>particle filter</em>.</p>
 
-<noscript>Please enable JavaScript!</noscript>
+<h1>What is a Particle Filter?</h1>
+<p>Particle filters are a class of tools used to estimate the state of something with limited and/or incomplete measurements that contain random noise. In order to understand how particle filters work, we first have to describe what a "particle" is. Also known as a sample, a particle is really just a guess at what the state we're trying to describe could be. For example, if we knew we were in downtown Ann Arbor, but didn't know our exact location, an individual particle could be <em>the intersection of Main Street and Liberty</em>. Another particle could be <em>the intersection between Ashley and Huron.</em> And so on.</p>
+<p>With a large enough number of particles, it's likely that at least one will be close to the truth. At this point, the process is iterative. Each time we receive a new batch of information, the particle filter evaluates how well each particle fits the data, and creates a new set of particles primarily located near the best from the previous iteration. By repeating this process over and over, the particle filter can build a belief of what the state actually is.</p>
+
+<h1>How my Particle Filter Works</h1>
+<p><b>1. Initialization of Particles</b><br>
+To start out, the algorithm randomly places a large number of particles in the state space, that is, all possible locations of the robot. Because there are a large number of particles, seeding them randomly ensures a relatively even distribution across the state space, and that there will be particles near the true location of the robot.</p>
+<img src="Random Initialization.png">
+<!-- TODO: Better image of the initialization -->
+<h6 style="display: block; width: 999px; text-align: center;">Every single dot is a particle, and the small line coming out of it represents its heading.</h6>
+<!-- TODO: Set width to the width of the new image -->
+
+<p><b>2. Get Robot Measurements</b><br>
+Each iteration of the algorithm starts out with data that is received from the robot. In our case, we recieve 3 pieces of information -- the robot's velocity, the heading to the pillar, and the distance to the pillar.</p>
+
+<p><b>3. Weight Particles</b><br>
+Based on the information we know about the robot, we can assign each particle a "weight" based on how well it matches with the robot's data. A higher weight means the particle is a closer match. This is indicated on the display by the color of the particle; blue represents a low weight, up to red which represents a high weight.</p>
+
+<p><b>4. Predict Robot Location</b><br>
+By averaging the location of all the particles with higher-than-average weights, the particle filter approximates the location of the robot.
+</p>
+<img src="Average.png">
+<h6 style="display: block; width: 995px; text-align: center;">The actual location is the black circle, and the average location is the grey circle.</h6>
+
+<p><b>5. Resample Particles</b><br>
+The algorithm randomly distributes the next set of particles at the locations of the previous set, with most of the new particles being put by the old particles with the highest weights. In addition, a small percentage of the particles are randomly seeded throughout the world, in case the robot isn't near any of the current particles.</p>
+
+<p><b>6. Translate Particles</b><br>
+Since we have an estimate of the robot's velocity, the particle filter translates each particle by the expected distance that the robot has moved. In addition, we add noise to both how far the particle travels and which way it travels, in recognition of the fact that the robot's velocity is not necessarily 100% accurate.</p>
+
+<p><b>7. Return to Step 2 and Repeat</b><br>
+</p>
+
+<br><br>
+
+<h1>Try it for Yourself!</h1>
+<h3>The simulation can be found <a href="http://tommycohn.com/Demo-Particle-Filter/simulation/index.html">here</a>.</h3>
 
 </body>
 </html>
