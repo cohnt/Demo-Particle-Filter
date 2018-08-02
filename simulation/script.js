@@ -174,7 +174,7 @@ function setup() {
 	document.getElementById("checkboxMouseLocation").addEventListener("change", function() { drawMouseLocation = this.checked; });
 	document.getElementById("checkboxGuessLocation").addEventListener("change", function() { drawGuessLocation = this.checked; });
 	document.getElementById("checkboxMousePath").addEventListener("change", function() { drawMousePath = this.checked; });
-	document.getElementById("checkboxGuessPath").addEventListener("change", function() { drawMouseLocation = this.checked; });
+	document.getElementById("checkboxGuessPath").addEventListener("change", function() { drawGuessPath = this.checked; });
 	document.getElementById("checkboxPathConnectors").addEventListener("change", function() { drawPathConnectors = this.checked; });
 	document.getElementById("checkboxParticles").addEventListener("change", function() { drawParticles = this.checked; });
 
